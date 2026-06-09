@@ -7,6 +7,12 @@ type GoogleAuthState = {
   nonce?: string;
 };
 
+type ClerkUserProfile = {
+  email?: string | null;
+  name?: string | null;
+  avatarUrl?: string | null;
+};
+
 const GOOGLE_OAUTH_NONCE_KEY = "keydrop_google_oauth_nonce";
 
 export async function apiRequest(path: string, options: RequestInit = {}) {
@@ -58,7 +64,7 @@ export async function register(email: string, password: string) {
   return data;
 }
 
-export async function createKeydropTokenFromClerk(clerkToken: string | null) {
+export async function createKeydropTokenFromClerk(clerkToken: string | null, profile: ClerkUserProfile = {}) {
   if (!clerkToken) {
     throw new Error("Missing Clerk token");
   }
@@ -66,6 +72,7 @@ export async function createKeydropTokenFromClerk(clerkToken: string | null) {
   return apiRequest("/auth/clerk/token", {
     method: "POST",
     headers: { Authorization: `Bearer ${clerkToken}` },
+    body: JSON.stringify({ profile }),
   });
 }
 

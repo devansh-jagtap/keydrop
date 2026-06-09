@@ -35,6 +35,14 @@ async function findUserByEmail(email) {
   });
 }
 
+function normalizeProfile(profile = {}) {
+  return {
+    email: typeof profile.email === "string" ? profile.email.trim().toLowerCase() : "",
+    name: typeof profile.name === "string" ? profile.name.trim() : null,
+    avatarUrl: typeof profile.avatarUrl === "string" ? profile.avatarUrl.trim() : null,
+  };
+}
+
 function decodeBase64UrlJson(value) {
   return JSON.parse(Buffer.from(value, "base64url").toString("utf8"));
 }
@@ -118,8 +126,9 @@ async function verifySessionToken(token) {
   return verifyClerkTokenWithPublicKey(token);
 }
 
-export async function getOrCreateUserFromClerkToken(token) {
+export async function getOrCreateUserFromClerkToken(token, profile = {}) {
   const claims = await verifySessionToken(token);
+  const normalizedProfile = normalizeProfile(profile);
 
   if (!claims.sub) {
     throw new Error("Clerk token is missing a user id");
@@ -133,23 +142,29 @@ export async function getOrCreateUserFromClerkToken(token) {
     return existingByClerkId;
   }
 
-  if (!clerkClient) {
-    throw new Error("CLERK_SECRET_KEY is required to link a new Clerk user");
-  }
+  let email = normalizedProfile.email;
+  let name = normalizedProfile.name;
+  let avatarUrl = normalizedProfile.avatarUrl;
+  let emailVerified = null;
 
-  const clerkUser = await clerkClient.users.getUser(claims.sub);
-  const primaryEmail = getPrimaryEmailAddress(clerkUser);
-  const email = primaryEmail?.emailAddress?.trim().toLowerCase();
+  if (clerkClient) {
+    const clerkUser = await clerkClient.users.getUser(claims.sub);
+    const primaryEmail = getPrimaryEmailAddress(clerkUser);
+    email = primaryEmail?.emailAddress?.trim().toLowerCase() || email;
+    name = clerkUser.fullName || clerkUser.username || name;
+    avatarUrl = clerkUser.imageUrl || avatarUrl;
+    emailVerified = primaryEmail?.verification?.status === "verified" ? new Date() : null;
+  }
 
   if (!email) {
-    throw new Error("Clerk user is missing a primary email address");
+    throw new Error("Unable to determine the Clerk user's email address");
   }
 
-  const profile = {
+  const userProfile = {
     clerkId: claims.sub,
-    name: clerkUser.fullName || clerkUser.username || null,
-    avatarUrl: clerkUser.imageUrl || null,
-    emailVerified: primaryEmail.verification?.status === "verified" ? new Date() : null,
+    name,
+    avatarUrl,
+    emailVerified,
   };
 
   const existingByEmail = await findUserByEmail(email);
@@ -157,14 +172,14 @@ export async function getOrCreateUserFromClerkToken(token) {
   if (existingByEmail) {
     return prisma.user.update({
       where: { id: existingByEmail.id },
-      data: profile,
+      data: userProfile,
     });
   }
 
   try {
     return await prisma.user.create({
       data: {
-        ...profile,
+        ...userProfile,
         email,
         password: null,
       },

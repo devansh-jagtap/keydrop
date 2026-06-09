@@ -3,13 +3,14 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Show, SignIn, UserButton, useAuth } from "@clerk/nextjs";
+import { Show, SignIn, UserButton, useAuth, useUser } from "@clerk/nextjs";
 import { confirmCliToken, createKeydropTokenFromClerk } from "@/lib/api";
 
 function CliAuthContent() {
   const searchParams = useSearchParams();
   const cliToken = searchParams.get("token");
   const { getToken, isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
 
@@ -21,7 +22,11 @@ function CliAuthContent() {
     async function authorizeCli() {
       try {
         const clerkToken = await getToken();
-        const keydropSession = await createKeydropTokenFromClerk(clerkToken);
+        const keydropSession = await createKeydropTokenFromClerk(clerkToken, {
+          email: user?.primaryEmailAddress?.emailAddress || null,
+          name: user?.fullName || user?.username || null,
+          avatarUrl: user?.imageUrl || null,
+        });
         await confirmCliToken(cliToken!, keydropSession.token);
         setDone(true);
       } catch (err: unknown) {
@@ -30,7 +35,7 @@ function CliAuthContent() {
     }
 
     authorizeCli();
-  }, [cliToken, done, getToken, isLoaded, isSignedIn]);
+  }, [cliToken, done, getToken, isLoaded, isSignedIn, user]);
 
   if (!cliToken) {
     return (

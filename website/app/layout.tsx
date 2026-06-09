@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { Inconsolata } from "next/font/google";
+import ClerkUserSync from "@/components/auth/clerk-user-sync";
 
 const inconsolata = Inconsolata({
   subsets: ["latin"],
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="min-h-full antialiased">
         <ClerkProvider signInUrl="/login" signUpUrl="/register">
+          <ClerkUserSync />
           {children}
         </ClerkProvider>
       </body>

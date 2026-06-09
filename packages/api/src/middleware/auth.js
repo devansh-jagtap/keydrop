@@ -15,7 +15,7 @@ export async function requireAuth(req, res, next) {
     return next();
   } catch {
     try {
-      const user = await getOrCreateUserFromClerkToken(token);
+      const user = await getOrCreateUserFromClerkToken(token, req.body?.profile);
       req.user = { userId: user.id, email: user.email, clerkId: user.clerkId };
       return next();
     } catch (error) {

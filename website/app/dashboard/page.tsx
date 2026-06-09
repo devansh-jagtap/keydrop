@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { UserButton, useAuth, useClerk } from "@clerk/nextjs";
+import { UserButton, useAuth, useClerk, useUser } from "@clerk/nextjs";
 import { createKeydropTokenFromClerk, deleteProject, getProjects } from "@/lib/api";
 
 interface Project {
@@ -15,6 +15,7 @@ interface Project {
 export default function Dashboard() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const { signOut } = useClerk();
+  const { user, isLoaded: isUserLoaded } = useUser();
   const [projects, setProjects] = useState<Project[]>([]);
   const [apiToken, setApiToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,7 +23,7 @@ export default function Dashboard() {
   const [copied, setCopied] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isLoaded) {
+    if (!isLoaded || !isUserLoaded) {
       return;
     }
 
@@ -36,7 +37,11 @@ export default function Dashboard() {
       try {
         setError("");
         const clerkToken = await getToken();
-        const session = await createKeydropTokenFromClerk(clerkToken);
+        const session = await createKeydropTokenFromClerk(clerkToken, {
+          email: user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || null,
+          name: user?.fullName || user?.username || null,
+          avatarUrl: user?.imageUrl || null,
+        });
         const data = await getProjects(session.token);
 
         if (active) {
@@ -59,7 +64,7 @@ export default function Dashboard() {
     return () => {
       active = false;
     };
-  }, [getToken, isLoaded, isSignedIn]);
+  }, [getToken, isLoaded, isSignedIn, isUserLoaded, user]);
 
   async function handleDelete(projectKey: string) {
     if (!confirm("Delete this project? This cannot be undone.")) return;
@@ -67,7 +72,11 @@ export default function Dashboard() {
       let token = apiToken;
       if (!token) {
         const clerkToken = await getToken();
-        const session = await createKeydropTokenFromClerk(clerkToken);
+        const session = await createKeydropTokenFromClerk(clerkToken, {
+          email: user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || null,
+          name: user?.fullName || user?.username || null,
+          avatarUrl: user?.imageUrl || null,
+        });
         token = session.token;
         setApiToken(token);
       }
