@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getProjects, deleteProject, getToken, clearToken } from "@/lib/api";
+import { UserButton, useAuth, useClerk } from "@clerk/nextjs";
+import { createKeydropTokenFromClerk, deleteProject, getProjects } from "@/lib/api";
 
 interface Project {
   id: string;
@@ -13,35 +13,66 @@ interface Project {
 }
 
 export default function Dashboard() {
-  const router = useRouter();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
+  const { signOut } = useClerk();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [apiToken, setApiToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = getToken();
-    if (!token) {
-      router.push("/login");
+    if (!isLoaded) {
       return;
     }
-    fetchProjects();
-  }, []);
 
-  async function fetchProjects() {
-    try {
-      const data = await getProjects();
-      setProjects(data.projects || []);
-    } catch {
-      router.push("/login");
-    } finally {
-      setLoading(false);
+    if (!isSignedIn) {
+      return;
     }
-  }
+
+    let active = true;
+
+    async function fetchProjects() {
+      try {
+        setError("");
+        const clerkToken = await getToken();
+        const session = await createKeydropTokenFromClerk(clerkToken);
+        const data = await getProjects(session.token);
+
+        if (active) {
+          setApiToken(session.token);
+          setProjects(data.projects || []);
+        }
+      } catch (err: unknown) {
+        if (active) {
+          setError(err instanceof Error ? err.message : "Failed to load projects");
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchProjects();
+
+    return () => {
+      active = false;
+    };
+  }, [getToken, isLoaded, isSignedIn]);
 
   async function handleDelete(projectKey: string) {
     if (!confirm("Delete this project? This cannot be undone.")) return;
     try {
-      await deleteProject(projectKey);
+      let token = apiToken;
+      if (!token) {
+        const clerkToken = await getToken();
+        const session = await createKeydropTokenFromClerk(clerkToken);
+        token = session.token;
+        setApiToken(token);
+      }
+
+      await deleteProject(projectKey, token);
       setProjects((prev) => prev.filter((p) => p.projectKey !== projectKey));
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Delete failed");
@@ -54,15 +85,18 @@ export default function Dashboard() {
     setTimeout(() => setCopied(null), 2000);
   }
 
-  function logout() {
-    clearToken();
-    router.push("/login");
-  }
-
-  if (loading) {
+  if (!isLoaded || (isSignedIn && loading)) {
     return (
       <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg)" }}>
-        <p style={{ color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>Loading...</p>
+        <p style={{ color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>Loading projects...</p>
+      </main>
+    );
+  }
+
+  if (!isSignedIn) {
+    return (
+      <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg)" }}>
+        <p style={{ color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>Redirecting to sign in...</p>
       </main>
     );
   }
@@ -92,7 +126,8 @@ export default function Dashboard() {
             >
               Back to home
             </Link>
-            <button onClick={logout}
+            <UserButton />
+            <button onClick={() => signOut({ redirectUrl: "/" })}
               style={{ padding: "8px 16px", borderRadius: "9999px", border: "1px solid var(--border-strong)", background: "transparent", color: "var(--text-secondary)", fontSize: "13px", cursor: "pointer", fontFamily: "var(--font-sans)" }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text)")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
@@ -103,7 +138,12 @@ export default function Dashboard() {
         </div>
 
         {/* empty state */}
-        {projects.length === 0 ? (
+        {error ? (
+          <div style={{ textAlign: "center", padding: "80px 24px", border: "1px solid rgba(239,68,68,0.25)", borderRadius: "12px", background: "rgba(239,68,68,0.05)" }}>
+            <p style={{ fontSize: "18px", fontWeight: "600", color: "var(--text)", marginBottom: "8px", fontFamily: "var(--font-sans)" }}>Projects could not be loaded</p>
+            <p style={{ fontSize: "14px", color: "#ef4444", fontFamily: "var(--font-sans)" }}>{error}</p>
+          </div>
+        ) : projects.length === 0 ? (
           <div style={{ textAlign: "center", padding: "80px 24px", borderRadius: "20px", border: "1px dashed var(--border-strong)", background: "var(--bg-card)" }}>
             <div style={{ fontSize: "40px", marginBottom: "16px" }}>🔐</div>
             <p style={{ fontSize: "18px", fontWeight: "600", color: "var(--text)", marginBottom: "8px", fontFamily: "var(--font-sans)" }}>No projects yet</p>

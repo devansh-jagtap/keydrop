@@ -1,6 +1,7 @@
 import { verifyToken } from "../lib/jwt.js";
+import { getOrCreateUserFromClerkToken } from "../lib/clerk.js";
 
-export function requireAuth(req, res, next) {
+export async function requireAuth(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader?.replace("Bearer ", "");
 
@@ -11,8 +12,15 @@ export function requireAuth(req, res, next) {
   try {
     const payload = verifyToken(token);
     req.user = payload;
-    next();
+    return next();
   } catch {
-    return res.status(401).json({ message: "Invalid or expired token" });
+    try {
+      const user = await getOrCreateUserFromClerkToken(token);
+      req.user = { userId: user.id, email: user.email, clerkId: user.clerkId };
+      return next();
+    } catch (error) {
+      console.error("Clerk authentication failed:", error.message);
+      return res.status(401).json({ message: "Invalid or expired token" });
+    }
   }
 }

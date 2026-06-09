@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getSecrets } from "@/lib/api";
 
 export default function ProjectPage() {
   const params = useParams();
-  const router = useRouter();
   const projectKey = params.id as string;
 
   const [secrets, setSecrets] = useState<Record<string, string>>({});
@@ -17,19 +16,31 @@ export default function ProjectPage() {
   const [copied, setCopied] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchSecrets();
-  }, []);
+    let active = true;
 
-  async function fetchSecrets() {
-    try {
-      const data = await getSecrets(projectKey);
-      setSecrets(data.secrets || {});
-    } catch {
-      setError("Failed to load secrets. Invalid or expired key.");
-    } finally {
-      setLoading(false);
+    async function fetchSecrets() {
+      try {
+        const data = await getSecrets(projectKey);
+        if (active) {
+          setSecrets(data.secrets || {});
+        }
+      } catch (err: unknown) {
+        if (active) {
+          setError(err instanceof Error ? err.message : "Failed to load secrets");
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
     }
-  }
+
+    fetchSecrets();
+
+    return () => {
+      active = false;
+    };
+  }, [projectKey]);
 
   function copyValue(key: string, value: string) {
     navigator.clipboard.writeText(value);

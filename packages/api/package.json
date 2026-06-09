@@ -5,8 +5,9 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon --exec \"node --env-file=.env src/index.js\" src/",
-    "start": "node src/index.js",
-    "postinstall": "prisma generate"
+    "start": "npm run migrate:deploy && node src/index.js",
+    "postinstall": "prisma generate",
+    "migrate:deploy": "prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
+    "@clerk/backend": "^3.5.0",
     "@neondatabase/serverless": "^1.1.0",
     "@prisma/adapter-neon": "^7.8.0",
     "@prisma/client": "^7.8.0",

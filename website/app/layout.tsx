@@ -36,7 +36,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
       </head>
       <body className="min-h-full antialiased">
-        <ClerkProvider>{children}</ClerkProvider>
+        <ClerkProvider signInUrl="/login" signUpUrl="/register">
+          {children}
+        </ClerkProvider>
       </body>
     </html>
   );

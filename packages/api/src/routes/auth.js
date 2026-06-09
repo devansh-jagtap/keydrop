@@ -4,6 +4,7 @@ import crypto from "crypto";
 import rateLimit from "express-rate-limit";
 import { prisma } from "../lib/prisma.js";
 import { signToken, verifyToken } from "../lib/jwt.js";
+import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
 
@@ -73,6 +74,12 @@ router.post("/login", authLimiter, async (req, res) => {
 
   const token = createUserToken(user);
   return res.json({ token, email: user.email });
+});
+
+// POST /auth/clerk/token — exchanges a verified Clerk session for a KeyDrop JWT
+router.post("/clerk/token", authLimiter, requireAuth, async (req, res) => {
+  const token = signToken({ userId: req.user.userId, email: req.user.email });
+  return res.json({ token, email: req.user.email });
 });
 
 // POST /auth/google — exchanges a Google OAuth code for a KeyDrop JWT

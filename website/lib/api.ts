@@ -18,10 +18,10 @@ export async function apiRequest(path: string, options: RequestInit = {}) {
     },
   });
 
-  const data = await res.json();
+  const data = await res.json().catch(() => null);
 
   if (!res.ok) {
-    throw new Error(data.message || "Request failed");
+    throw new Error(data?.message || `Request failed (${res.status})`);
   }
 
   return data;
@@ -56,6 +56,17 @@ export async function register(email: string, password: string) {
   });
   saveToken(data.token);
   return data;
+}
+
+export async function createKeydropTokenFromClerk(clerkToken: string | null) {
+  if (!clerkToken) {
+    throw new Error("Missing Clerk token");
+  }
+
+  return apiRequest("/auth/clerk/token", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${clerkToken}` },
+  });
 }
 
 export function getGoogleAuthUrl(state: GoogleAuthState = {}) {
@@ -108,10 +119,14 @@ export async function loginWithGoogle(code: string, redirectUri: string) {
   return data;
 }
 
-export async function getProjects() {
-  const token = getToken();
+export async function getProjects(token?: string | null) {
+  const authToken = token || getToken();
+  if (!authToken) {
+    throw new Error("Missing authentication token");
+  }
+
   return apiRequest("/projects", {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${authToken}` },
   });
 }
 
@@ -121,11 +136,15 @@ export async function getSecrets(projectKey: string) {
   });
 }
 
-export async function deleteProject(projectKey: string) {
-  const token = getToken();
+export async function deleteProject(projectKey: string, token?: string | null) {
+  const authToken = token || getToken();
+  if (!authToken) {
+    throw new Error("Missing authentication token");
+  }
+
   return apiRequest(`/project/${projectKey}`, {
     method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${authToken}` },
   });
 }
 
