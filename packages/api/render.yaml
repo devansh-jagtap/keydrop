@@ -7,3 +7,6 @@ services:
     startCommand: npm start
     healthCheckPath: /health
     autoDeploy: true
+    envVars:
+      - key: CLERK_ISSUER_URL
+        value: https://noble-antelope-0.clerk.accounts.dev
