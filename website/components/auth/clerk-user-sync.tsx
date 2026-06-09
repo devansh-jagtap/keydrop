@@ -14,7 +14,9 @@ export default function ClerkUserSync() {
       return;
     }
 
-    const storageKey = `keydrop_clerk_synced:${user.id}`;
+    const currentUser = user;
+
+    const storageKey = `keydrop_clerk_synced:${currentUser.id}`;
     if (sessionStorage.getItem(storageKey) === "1") {
       return;
     }
@@ -26,9 +28,9 @@ export default function ClerkUserSync() {
       try {
         const clerkToken = await getToken();
         await createKeydropTokenFromClerk(clerkToken, {
-          email: user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress || null,
-          name: user.fullName || user.username || null,
-          avatarUrl: user.imageUrl || null,
+          email: currentUser.primaryEmailAddress?.emailAddress || currentUser.emailAddresses?.[0]?.emailAddress || null,
+          name: currentUser.fullName || currentUser.username || null,
+          avatarUrl: currentUser.imageUrl || null,
         });
 
         if (active) {
