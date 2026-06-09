@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { login, register, confirmCliToken, getToken } from "@/lib/api";
+import { login, register, confirmCliToken, getToken, getGoogleAuthUrl } from "@/lib/api";
 import { Suspense } from "react";
 
 function CliAuthContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const cliToken = searchParams.get("token");
 
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -54,6 +53,17 @@ function CliAuthContent() {
     }
   }
 
+  function handleGoogleLogin() {
+    const url = getGoogleAuthUrl({ cliToken: cliToken || undefined });
+
+    if (!url) {
+      setError("Google sign-in is not configured");
+      return;
+    }
+
+    window.location.href = url;
+  }
+
   if (!cliToken) {
     return (
       <div style={{ textAlign: "center" }}>
@@ -92,6 +102,17 @@ function CliAuthContent() {
       </div>
 
       <div style={{ background: "var(--bg-card)", border: "1px solid var(--border-strong)", borderRadius: "16px", padding: "28px" }}>
+        <button type="button" onClick={handleGoogleLogin}
+          style={{ width: "100%", padding: "11px", borderRadius: "10px", background: "var(--bg-secondary)", color: "var(--text)", fontSize: "14px", fontWeight: "600", border: "1px solid var(--border-strong)", cursor: "pointer", fontFamily: "var(--font-sans)", marginBottom: "14px" }}>
+          Continue with Google
+        </button>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "14px" }}>
+          <div style={{ height: "1px", flex: 1, background: "var(--border)" }} />
+          <span style={{ color: "var(--text-secondary)", fontSize: "12px", fontFamily: "var(--font-sans)" }}>or</span>
+          <div style={{ height: "1px", flex: 1, background: "var(--border)" }} />
+        </div>
+
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           {error && (
             <div style={{ padding: "10px 14px", borderRadius: "8px", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", fontSize: "13px", color: "#ef4444", fontFamily: "var(--font-sans)" }}>

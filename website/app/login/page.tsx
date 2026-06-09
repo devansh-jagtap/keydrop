@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { login } from "@/lib/api";
+import { getGoogleAuthUrl, login } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,6 +27,17 @@ export default function LoginPage() {
     }
   }
 
+  function handleGoogleLogin() {
+    const url = getGoogleAuthUrl({ next: "/dashboard" });
+
+    if (!url) {
+      setError("Google sign-in is not configured");
+      return;
+    }
+
+    window.location.href = url;
+  }
+
   return (
     <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px", background: "var(--bg)" }}>
       <div style={{ width: "100%", maxWidth: "400px" }}>
@@ -43,6 +54,20 @@ export default function LoginPage() {
 
         {/* form */}
         <div style={{ background: "var(--bg-card)", border: "1px solid var(--border-strong)", borderRadius: "16px", padding: "32px" }}>
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            style={{ width: "100%", padding: "11px", borderRadius: "10px", background: "var(--bg-secondary)", color: "var(--text)", fontSize: "14px", fontWeight: "600", border: "1px solid var(--border-strong)", cursor: "pointer", fontFamily: "var(--font-sans)", marginBottom: "16px" }}
+          >
+            Continue with Google
+          </button>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+            <div style={{ height: "1px", flex: 1, background: "var(--border)" }} />
+            <span style={{ color: "var(--text-secondary)", fontSize: "12px", fontFamily: "var(--font-sans)" }}>or</span>
+            <div style={{ height: "1px", flex: 1, background: "var(--border)" }} />
+          </div>
+
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
 
             {error && (
