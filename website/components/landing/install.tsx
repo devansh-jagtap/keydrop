@@ -4,32 +4,45 @@ import { useState } from "react";
 
 const installOptions = [
   {
-    id: "node",
-    title: "Node.js",
-    subtitle: "Express, Fastify, Hono",
-    icon: "/icons/nodedotjs.svg",
+    id: "quick-run",
+    title: "Quick run",
+    subtitle: "Fewest steps — CLI only, no SDK",
+    icon: null,
     commands: [
-      { label: "Install SDK + CLI", code: "npm install keydrop@latest && npm install -g keydrop-cli@latest" },
+      { label: "Install CLI", code: "npm install -g keydrop-cli@latest" },
       { label: "Login once from CLI", code: "keydrop login" },
       { label: "Push your secrets", code: "keydrop push" },
-      { label: "Initialize KeyDrop SDK", code: 'import { init } from "keydrop";' },
-      { label: "Load secrets at startup", code: "await init();" },
-      { label: "If top-level await is unsupported", code: "(async () => { await init(); const app = express(); app.listen(3000); })();" },
+      { label: "Run any command with secrets", code: "keydrop run -- npm start" },
+      { label: "Build or deploy scripts", code: "keydrop run -- next build" },
+    ],
+  },
+  {
+    id: "node",
+    title: "Node.js",
+    subtitle: "Express, Fastify, Hono — keydrop run or optional SDK",
+    icon: "/icons/nodedotjs.svg",
+    commands: [
+      { label: "Install CLI", code: "npm install -g keydrop-cli@latest" },
+      { label: "Login once from CLI", code: "keydrop login" },
+      { label: "Push your secrets", code: "keydrop push" },
+      { label: "Run your app with secrets", code: "keydrop run -- npm start" },
+      { label: "Optional — install SDK if you want auto-inject at startup", code: "npm install keydrop@latest" },
+      { label: "Optional — call init before your server starts", code: 'import { init } from "keydrop";\nawait init();' },
       { label: "Deploy anywhere", code: "KEYDROP_KEY=proj_x82js8sh" },
     ],
   },
   {
     id: "next",
     title: "Next.js",
-    subtitle: "App Router + instrumentation hook",
+    subtitle: "App Router — run dev and build with keydrop run",
     icon: "/icons/nextdotjs.svg",
     commands: [
-      { label: "Install SDK + CLI", code: "npm install keydrop@latest && npm install -g keydrop-cli@latest" },
+      { label: "Install CLI", code: "npm install -g keydrop-cli@latest" },
       { label: "Login once from CLI", code: "keydrop login" },
       { label: "Push your secrets", code: "keydrop push" },
-      { label: "Create instrumentation.ts", code: "project-root/instrumentation.ts" },
-      { label: "Initialize KeyDrop SDK", code: 'export async function register() { const { init } = await import("keydrop"); await init(); }' },
-      { label: "Enable instrumentation hook if needed", code: "export default { experimental: { instrumentationHook: true } }" },
+      { label: "Run dev server with secrets", code: "keydrop run -- next dev" },
+      { label: "Build for production with secrets", code: "keydrop run -- next build" },
+      { label: "Start production server with secrets", code: "keydrop run -- next start" },
       { label: "Deploy anywhere", code: "KEYDROP_KEY=proj_x82js8sh" },
     ],
   },
@@ -163,6 +176,26 @@ export default function Install() {
                       alt={item.title}
                       style={{ width: "44px", height: "44px", objectFit: "contain" }}
                     />
+                  </div>
+                ) : item.id === "quick-run" ? (
+                  <div
+                    style={{
+                      width: "84px",
+                      height: "84px",
+                      borderRadius: "26px",
+                      background: "rgba(34,211,165,0.12)",
+                      border: "1px solid rgba(34,211,165,0.25)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginBottom: "22px",
+                      color: "var(--accent)",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "22px",
+                      fontWeight: "700",
+                    }}
+                  >
+                    $
                   </div>
                 ) : (
                   <div

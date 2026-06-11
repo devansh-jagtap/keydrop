@@ -5,9 +5,9 @@ import { useEffect, useRef, useState } from "react";
 const steps = [
   {
     number: "01",
-    commands: ["npm install keydrop", "npm install -g keydrop-cli"],
+    commands: ["npm install -g keydrop-cli@latest"],
     title: "Install",
-    description: "Add the SDK and CLI to your project. One time setup.",
+    description: "Install the CLI globally. One command, one-time setup.",
   },
   {
     number: "02",
@@ -18,10 +18,10 @@ const steps = [
   },
   {
     number: "03",
-    commands: ['await import("keydrop/init")'],
-    title: "Deploy",
+    commands: ["keydrop run -- npm start", "keydrop run -- next build"],
+    title: "Run",
     description:
-      "Add one line to your app. Deploy with only KEYDROP_KEY. Everything works.",
+      "Run any command with secrets injected. No SDK, no code changes — just prefix your script with keydrop run.",
   },
 ];
 
