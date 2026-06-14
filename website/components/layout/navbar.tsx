@@ -51,7 +51,7 @@ export default function Navbar() {
         <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
           {[
             { label: "How it works", href: "#how-it-works" },
-            { label: "Install", href: "#install" },
+            { label: "Docs", href: "/docs" },
             { label: "GitHub", href: "https://github.com/devansh-jagtap/keydrop", external: true },
           ].map((item) => (
             <a
@@ -60,6 +60,13 @@ export default function Navbar() {
               target={item.external ? "_blank" : undefined}
               rel={item.external ? "noopener noreferrer" : undefined}
               style={{ fontSize: "13px", color: "var(--text-secondary)", textDecoration: "none", fontFamily: "var(--font-sans)", transition: "color 0.2s" }}
+              onClick={(e) => {
+                if (item.href.startsWith("#")) {
+                  e.preventDefault();
+                  const el = document.querySelector(item.href);
+                  el?.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text)")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
             >
