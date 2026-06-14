@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { UserButton, useAuth, useUser } from "@clerk/nextjs";
 import { createKeydropTokenFromClerk, deleteProject, getProjects } from "@/lib/api";
 
@@ -124,23 +125,14 @@ export default function Dashboard() {
       >
         <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: "12px", textDecoration: "none" }}>
-            <div
-              style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "10px",
-                background: "var(--accent)",
-                color: "#080808",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "16px",
-                fontWeight: "800",
-                fontFamily: "var(--font-sans)",
-              }}
-            >
-              K
-            </div>
+            <Image
+              src="/svglogo.webp"
+              alt="KeyDrop Logo"
+              width={36}
+              height={36}
+              unoptimized
+              style={{ borderRadius: "8px", filter: "var(--logo-filter)" }}
+            />
             <span style={{ fontSize: "16px", fontWeight: "700", color: "var(--text)", fontFamily: "var(--font-sans)" }}>
               KeyDrop
             </span>
