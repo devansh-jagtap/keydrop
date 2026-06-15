@@ -1,7 +1,7 @@
 <div align="center">
   <img src="website/public/svglogo.webp" alt="KeyDrop Logo" width="120" height="120" />
-  <h1>KeyDrop 🔐</h1>
-  <p><strong>Turn your entire <code>.env</code> file into one secure deployable key</strong></p>
+  <h1>KeyDrop</h1>
+  <p><strong>Turn your entire <code>.env</code> file into one deployable key</strong></p>
   
   <p>
     <a href="https://www.npmjs.com/package/keydrop"><img src="https://img.shields.io/npm/v/keydrop?color=22d3a5&logo=npm" alt="npm version" /></a>
@@ -13,7 +13,7 @@
     <a href="#quick-start">Quick Start</a> •
     <a href="#how-it-works">How It Works</a> •
     <a href="#documentation">Documentation</a> •
-    <a href="#packages">Packages</a>
+    <a href="#deployment">Deployment</a>
   </p>
 </div>
 
@@ -21,183 +21,235 @@
 
 ## 🚀 What is KeyDrop?
 
-KeyDrop lets you replace dozens of environment variables with a single secure key.
+KeyDrop is a **deployment-first secret management platform** that replaces your entire `.env` file with a single secure key.
 
-Instead of manually copying `.env` files between local machines, CI pipelines, staging servers, and production environments, you push your secrets once and deploy anywhere using only `KEYDROP_KEY`.
+Instead of manually configuring dozens of environment variables across local development, CI/CD pipelines, and deployment platforms, you upload your `.env` file once and receive a single `KEYDROP_KEY` that works everywhere.
 
-## 💡 Why KeyDrop?
+### The Problem
 
 Managing secrets across environments is painful:
 
-* `.env` files get shared over Slack, Discord, or email
-* CI/CD platforms require repetitive manual setup
-* Team onboarding means sending sensitive credentials around
-* Deployments break because one variable is missing
-* Secret rotation becomes messy and inconsistent
+- `.env` files get shared over Slack, Discord, or email
+- CI/CD platforms require repetitive manual configuration
+- Team onboarding means sending sensitive credentials around
+- Deployments break because one variable is missing
+- Secret rotation becomes messy and inconsistent
 
-KeyDrop simplifies this workflow into:
+### The KeyDrop Solution
 
 ```bash
-keydrop push
+# Before: 20+ environment variables to configure
+DATABASE_URL=postgres://...
+API_KEY=sk_live_...
+STRIPE_SECRET=sk_test_...
+JWT_SECRET=...
+REDIS_URL=...
+# ... and 15 more
+
+# After: Just one key
+KEYDROP_KEY=proj_a1b2c3d4e5f6g7h8
 ```
 
-Your secrets are encrypted, stored securely, and replaced with a single deployable key.
-
-## 📊 Before vs After
-
-### Before
-
-```env
-MONGO_URI=mongodb://...
-JWT_SECRET=abc123
-STRIPE_SECRET_KEY=sk_test_xxx
-REDIS_URL=redis://...
-```
-
-Every environment needs all variables configured manually.
-
-### After
-
-```env
-KEYDROP_KEY=proj_x82js8sh
-```
-
-That single key securely loads all your environment variables at runtime.
+---
 
 ## 🔧 How It Works
 
-### 1. Push Your `.env`
+### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Developer Workflow                       │
+└─────────────────────────────────────────────────────────────┘
+
+  1. Login                    2. Push Secrets              3. Develop/Build
+┌──────────┐                 ┌──────────┐                 ┌──────────┐
+│ keydrop  │                 │ keydrop  │                 │ keydrop  │
+│  login   │ ───────────────▶│   push   │ ───────────────▶│   run    │
+└──────────┘                 └──────────┘                 └──────────┘
+     │                             │                             │
+     ▼                             ▼                             ▼
+  Get JWT                    Upload .env                   Fetch secrets
+   Token                   (encrypted)                    & run command
+                                 │
+                                 ▼
+                         KEYDROP_KEY=proj_xxx
+
+┌─────────────────────────────────────────────────────────────┐
+│                     Runtime / Production                     │
+└─────────────────────────────────────────────────────────────┘
+
+  Set KEYDROP_KEY in platform       App starts with SDK
+┌──────────────────────┐          ┌──────────────────────┐
+│ Environment Variable │          │  import { init }     │
+│ KEYDROP_KEY=proj_xxx │ ────────▶│  await init()        │
+└──────────────────────┘          └──────────────────────┘
+                                            │
+                                            ▼
+                                   Secrets loaded into
+                                     process.env
+```
+
+### System Architecture
+
+```
+┌──────────────┐
+│     CLI      │  keydrop login/push/pull/run
+│  (keydrop)   │
+└──────┬───────┘
+       │
+       │ HTTPS + JWT
+       │
+       ▼
+┌──────────────┐
+│  Backend API │  Authentication, Encryption, Storage
+│   (Express)  │
+└──────┬───────┘
+       │
+       │ PostgreSQL
+       │
+       ▼
+┌──────────────┐
+│   Database   │  Users, Projects, Encrypted Secrets
+│  (Postgres)  │
+└──────────────┘
+
+       ▲
+       │ HTTPS + Project Key
+       │
+┌──────────────┐
+│  Runtime SDK │  import { init } from "keydrop"
+│  (keydrop)   │  await init()
+└──────────────┘
+```
+
+### Secret Flow
+
+1. **Push**: Developer runs `keydrop push`
+   - CLI reads `.env` file
+   - Encrypts with AES-256-GCM
+   - Uploads to API with JWT authentication
+   - API stores encrypted data in PostgreSQL
+   - Returns `KEYDROP_KEY`
+
+2. **Development**: Developer runs `keydrop run -- npm run dev`
+   - CLI fetches encrypted secrets using `KEYDROP_KEY`
+   - Decrypts locally
+   - Injects into command environment
+   - Command runs with all secrets available
+
+3. **Runtime**: App starts in production
+   - SDK reads `KEYDROP_KEY` from environment
+   - Fetches encrypted secrets from API
+   - Decrypts and injects into `process.env`
+   - App code accesses secrets normally
+
+---
+
+## 📦 Quick Start
+
+### 1. Install
+
+```bash
+npm install -g keydrop-cli
+npm install keydrop
+```
+
+### 2. Authenticate
+
+```bash
+keydrop login
+```
+
+Enter your email and password. Your JWT token is stored locally.
+
+### 3. Push Your Secrets
 
 ```bash
 keydrop push
 ```
 
-The CLI:
+**Before** (`your .env file`):
+```env
+DATABASE_URL=postgres://user:pass@host/db
+API_KEY=sk_live_abc123
+STRIPE_SECRET=sk_test_xyz789
+JWT_SECRET=my-super-secret
+```
 
-* Reads your `.env`
-* Parses all environment variables
-* Encrypts them using AES-256-GCM
-* Uploads the encrypted payload to the KeyDrop API
-* Returns a unique project key
-* Replaces your local `.env` with:
+**After** (`.env` is replaced with):
+```env
+KEYDROP_KEY=proj_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
+```
+
+### 4. Develop Locally
+
+```bash
+keydrop run -- npm run dev
+# or
+keydrop run -- next dev
+# or
+keydrop run -- node index.js
+```
+
+Your app now has access to all original environment variables!
+
+### 5. Deploy to Production
+
+Set **one** environment variable in your deployment platform:
 
 ```env
-KEYDROP_KEY=proj_x82js8sh
+KEYDROP_KEY=proj_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
 ```
 
-### 2. Initialize KeyDrop in Your App
+Add runtime initialization to your app:
 
-#### For Next.js
-
-1. Install the latest SDK:
-
-```bash
-npm install keydrop@latest
-```
-
-2. Create `instrumentation.ts` in your project root (same level as `package.json`):
-
-```ts
-export async function register() {
-  const { init } = await import("keydrop");
-  await init();
-}
-```
-
-> Note: If your Next.js setup does not detect `instrumentation.ts`, enable the instrumentation hook in `next.config.js`:
-
-```js
-// next.config.js
-module.exports = {
-  experimental: {
-    instrumentationHook: true,
-  },
-};
-```
-
-#### For Node.js
-
-1. Install the latest SDK:
-
-```bash
-npm install keydrop@latest
-```
-
-2. In `index.js` or `server.js`, initialize KeyDrop in the first lines:
-
-```js
+```javascript
 import { init } from "keydrop";
 await init();
 
-// now start your server below
-const app = express();
+// Now all secrets are available
+console.log(process.env.DATABASE_URL);
+console.log(process.env.API_KEY);
 ```
 
-If your runtime does not support top-level `await`, use an async IIFE:
+---
 
-```js
-import { init } from "keydrop";
+## 🎯 Framework Examples
 
-(async () => {
-  await init();
-  const app = express();
-  app.listen(3000);
-})();
-```
+### Next.js
 
-### 3. Runtime Secret Injection
-
-When your app starts:
-
-1. The SDK reads `KEYDROP_KEY`
-2. Fetches encrypted secrets from the API
-3. Decrypts them securely
-4. Injects them into `process.env`
-
-Your existing code works unchanged:
-
-```js
-process.env.MONGO_URI
-process.env.JWT_SECRET
-process.env.STRIPE_SECRET_KEY
-```
-
-## 🚦 Quick Start
-
-### Install
-
+**Installation:**
 ```bash
-npm install keydrop@latest
+npm install keydrop
 npm install -g keydrop-cli
 ```
 
-### Push Secrets
-
+**Push secrets:**
 ```bash
+keydrop login
 keydrop push
 ```
 
-### Add Runtime Initialization
-
-#### Next.js
-
+**Development:**
 ```bash
-npm install keydrop@latest
+keydrop run -- npm run dev
 ```
 
-Create `instrumentation.ts` in your project root:
+**Build:**
+```bash
+keydrop run -- next build
+```
 
-```ts
+**Production runtime** - Create `instrumentation.ts`:
+```typescript
 export async function register() {
   const { init } = await import("keydrop");
   await init();
 }
 ```
 
-> Note: If your Next.js setup does not detect `instrumentation.ts`, enable the instrumentation hook in `next.config.js`:
-
-```js
-// next.config.js
+Enable in `next.config.js`:
+```javascript
 module.exports = {
   experimental: {
     instrumentationHook: true,
@@ -205,171 +257,255 @@ module.exports = {
 };
 ```
 
-#### Node.js
+### Node.js / Express
 
+**Installation:**
 ```bash
-npm install keydrop@latest
+npm install keydrop
+npm install -g keydrop-cli
 ```
 
-In `index.js` or `server.js`:
+**Push secrets:**
+```bash
+keydrop login
+keydrop push
+```
 
-```js
+**Development:**
+```bash
+keydrop run -- npm start
+```
+
+**Production** - In your `index.js`:
+```javascript
 import { init } from "keydrop";
 await init();
+
+import express from "express";
+const app = express();
+
+app.get("/", (req, res) => {
+  // All secrets loaded!
+  console.log(process.env.DATABASE_URL);
+  res.send("Hello World");
+});
+
+app.listen(3000);
 ```
 
-If top-level `await` is not supported in your setup, wrap startup in an async IIFE instead:
-
-```js
+If your runtime doesn't support top-level await:
+```javascript
 import { init } from "keydrop";
 
 (async () => {
   await init();
+  
   const app = express();
   app.listen(3000);
 })();
 ```
 
-### Deploy Anywhere
+---
 
-Only set this environment variable:
+## 🚀 Deployment
 
-```env
-KEYDROP_KEY=proj_x82js8sh
+### Vercel
+
+**1. Set environment variable:**
+```
+KEYDROP_KEY=proj_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
 ```
 
-Your secrets will automatically load at runtime.
-
-## 📦 Example Flow
-
+**2. Set build command:**
 ```bash
-# Local development
-keydrop push
-
-# .env becomes
-KEYDROP_KEY=proj_x82js8sh
+npx keydrop run -- next build
 ```
 
-Deploy to:
+**3. Add runtime initialization** (see Next.js example above)
 
-* Vercel
-* Render
-* Render
-* Docker
-* AWS
-* VPS
-* GitHub Actions
+**4. Deploy!**
 
-Only `KEYDROP_KEY` is required.
+This setup is **verified and working**.
+
+### Railway / Render / Heroku
+
+**1. Set environment variable:**
+```
+KEYDROP_KEY=proj_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
+```
+
+**2. Use `keydrop run` in build command** (if needed):
+```bash
+keydrop run -- npm run build
+```
+
+**3. Add SDK initialization** (see examples above)
+
+### Docker
+
+**Dockerfile:**
+```dockerfile
+FROM node:18
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+
+# Build with secrets (if needed)
+ARG KEYDROP_KEY
+ENV KEYDROP_KEY=$KEYDROP_KEY
+RUN npx keydrop run -- npm run build
+
+CMD ["node", "index.js"]
+```
+
+**Runtime secrets are loaded by SDK** - set `KEYDROP_KEY` when running container.
+
+---
 
 ## 📚 Packages
 
-| Package       | Description                                  |
-| ------------- | -------------------------------------------- |
-| `keydrop`     | Runtime SDK that fetches and injects secrets |
-| `keydrop-cli` | CLI tool for pushing and managing secrets    |
-| `api`         | Backend API for encryption and storage       |
+| Package | Description | Documentation |
+|---------|-------------|---------------|
+| [`keydrop-cli`](packages/cli/README.md) | CLI for push/pull/run commands | [CLI Docs](packages/cli/README.md) |
+| [`keydrop`](packages/sdk/README.md) | Runtime SDK for secret injection | [SDK Docs](packages/sdk/README.md) |
+| [`api`](packages/api/README.md) | Backend API service | [API Docs](packages/api/README.md) |
 
-## 🏗️ Architecture
-
-```text
-┌─────────────────┐
-│   keydrop-cli   │
-└────────┬────────┘
-         │
-         │ Reads .env
-         │
-         ▼
-┌─────────────────┐
-│ Encrypt Secrets │
-│ AES-256-GCM     │
-└────────┬────────┘
-         │
-         │ Upload encrypted payload
-         ▼
-┌─────────────────┐
-│   KeyDrop API   │
-│ Stores ciphertext│
-└────────┬────────┘
-         │
-         │ Returns KEYDROP_KEY
-         ▼
-┌─────────────────┐
-│ Runtime SDK     │
-│ keydrop/init    │
-└────────┬────────┘
-         │
-         │ Fetch + decrypt secrets
-         ▼
-┌─────────────────┐
-│ process.env     │
-└─────────────────┘
-```
+---
 
 ## 🔒 Security
 
-KeyDrop is designed so secrets are never exposed in plaintext after upload.
-
 ### Encryption
 
-* AES-256-GCM authenticated encryption
-* Encrypted before storage
-* Ciphertext stored in the database
+- **Algorithm**: AES-256-GCM
+- **Key Length**: 256 bits (32 bytes)
+- **IV**: Random 12 bytes per encryption
+- **Auth Tag**: 16 bytes for integrity verification
 
 ### Authentication
 
-* `KEYDROP_KEY` acts as the project access token
-* No secret values exposed in logs
-* HTTPS-only communication in production
+- **JWT tokens** with 30-day expiry
+- **Bcrypt** password hashing (10 rounds)
+- **HTTPS-only** communication in production
 
-### Runtime
+### Authorization
 
-Secrets are injected directly into memory via `process.env`.
+- Users can only access their own projects
+- Ownership verification on all project operations
+- Runtime secret fetch uses `KEYDROP_KEY` (no user auth required)
 
-## 🏠 Self Hosting
+### Storage
 
-You can self-host the KeyDrop API.
+- Secrets encrypted before storage
+- Database stores only ciphertext
+- Plain text never persists to disk
+- Encryption key stored securely in environment
 
-### Clone the Repository
+---
 
-```bash
-git clone https://github.com/devansh-jagtap/keydrop.git
-cd keydrop/packages/api
-npm install
-```
+## 🐛 Troubleshooting
 
-### Configure Environment Variables
-
-```env
-DATABASE_URL=your_postgres_connection_string
-ENCRYPTION_KEY=your_64_char_hex_key
-```
-
-### Start the API
+### "Not logged in" error
 
 ```bash
-npm start
+keydrop login
 ```
 
-### Point SDK & CLI to Your API
+Make sure you're logged in before pushing secrets.
 
+### "KEYDROP_KEY not found"
+
+Make sure `.env` contains:
 ```env
-KEYDROP_API_URL=https://your-api.com
+KEYDROP_KEY=proj_...
 ```
+
+Or set it in your environment:
+```bash
+export KEYDROP_KEY=proj_a1b2c3d4e5f6g7h8
+```
+
+### Secrets not loading at runtime
+
+1. Verify `KEYDROP_KEY` is set in environment
+2. Check `init()` is called before using secrets
+3. Verify API is reachable
+4. Check for error messages in console
+
+### Build-time secrets not available
+
+Use `keydrop run` to inject secrets:
+
+```bash
+keydrop run -- next build
+keydrop run -- npm run build
+```
+
+### "Invalid project key"
+
+- Make sure you copied the full key
+- Key should start with `proj_`
+- Re-run `keydrop push` if needed
+
+---
+
+## 📖 Project Structure
+
+```
+keydrop/
+├── packages/
+│   ├── cli/              # CLI tool (keydrop command)
+│   │   ├── src/
+│   │   │   ├── commands/
+│   │   │   │   ├── auth.js      # login/logout/register
+│   │   │   │   ├── push.js      # Upload secrets
+│   │   │   │   ├── pull.js      # Download secrets
+│   │   │   │   └── run.js       # Run with secrets
+│   │   │   └── index.js
+│   │   └── bin/
+│   │       └── keydrop.js
+│   │
+│   ├── sdk/              # Runtime SDK
+│   │   └── src/
+│   │       └── init.js   # Secret injection
+│   │
+│   └── api/              # Backend service
+│       ├── src/
+│       │   ├── routes/
+│       │   │   └── secrets.js    # API endpoints
+│       │   └── lib/
+│       │       └── auth.js       # JWT utilities
+│       └── prisma/
+│           └── schema.prisma     # Database schema
+│
+└── website/              # Landing page + Dashboard
+    └── app/
+        └── dashboard/    # User dashboard
+```
+
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
 
 ## 📝 Documentation
 
-- [User Guide](USER_GUIDE.md) - Comprehensive usage documentation
-- [Implementation Details](IMPLEMENTATION.md) - Technical implementation guide
-- [API Documentation](packages/api/README.md) - API reference
+- [User Guide](USER_GUIDE.md) - Comprehensive usage guide
+- [Implementation Details](IMPLEMENTATION.md) - Technical architecture
+- [CLI Documentation](packages/cli/README.md)
+- [SDK Documentation](packages/sdk/README.md)
+- [API Documentation](packages/api/README.md)
+
+---
 
 ## 🐛 Issues
 
 Found a bug? Have a feature request? Please [open an issue](https://github.com/devansh-jagtap/keydrop/issues).
+
+---
 
 ## 📄 License
 

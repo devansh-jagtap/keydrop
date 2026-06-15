@@ -13,6 +13,17 @@ npm install keydrop
 
 ## 🚀 Quick Start
 
+### Prerequisites
+
+Before using the SDK, push your secrets with the CLI:
+
+```bash
+npm install -g keydrop-cli
+keydrop push
+```
+
+This replaces your `.env` with `KEYDROP_KEY=proj_...`
+
 ### Next.js
 
 Create `instrumentation.ts` in your project root:
@@ -24,7 +35,7 @@ export async function register() {
 }
 ```
 
-> **Note:** Enable instrumentation hook in `next.config.js` if needed:
+Enable instrumentation in `next.config.js`:
 
 ```javascript
 module.exports = {
