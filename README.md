@@ -61,18 +61,18 @@ KEYDROP_KEY=proj_a1b2c3d4e5f6g7h8
 │                     Developer Workflow                       │
 └─────────────────────────────────────────────────────────────┘
 
-  1. Login                    2. Push Secrets              3. Develop/Build
-┌──────────┐                 ┌──────────┐                 ┌──────────┐
-│ keydrop  │                 │ keydrop  │                 │ keydrop  │
-│  login   │ ───────────────▶│   push   │ ───────────────▶│   run    │
-└──────────┘                 └──────────┘                 └──────────┘
-     │                             │                             │
-     ▼                             ▼                             ▼
-  Get JWT                    Upload .env                   Fetch secrets
-   Token                   (encrypted)                    & run command
-                                 │
-                                 ▼
-                         KEYDROP_KEY=proj_xxx
+  1. Login (Browser)          2. Push Secrets              3. Develop/Build
+┌──────────────┐             ┌──────────┐                 ┌──────────┐
+│   keydrop    │             │ keydrop  │                 │ keydrop  │
+│    login     │ ──────────▶ │   push   │ ───────────────▶│   run    │
+└──────────────┘             └──────────┘                 └──────────┘
+       │                            │                             │
+       ▼                            ▼                             ▼
+  Opens Browser               Upload .env                   Fetch secrets
+  → Clerk Auth              (encrypted)                    & run command
+  → Returns JWT                   │
+                                  ▼
+                          KEYDROP_KEY=proj_xxx
 
 ┌─────────────────────────────────────────────────────────────┐
 │                     Runtime / Production                     │
@@ -97,11 +97,19 @@ KEYDROP_KEY=proj_a1b2c3d4e5f6g7h8
 │  (keydrop)   │
 └──────┬───────┘
        │
-       │ HTTPS + JWT
+       │ Browser OAuth Flow (Clerk)
        │
        ▼
 ┌──────────────┐
-│  Backend API │  Authentication, Encryption, Storage
+│    Clerk     │  Authentication Provider
+│ (OAuth/SSO)  │
+└──────┬───────┘
+       │
+       │ Issues JWT Token
+       │
+       ▼
+┌──────────────┐
+│  Backend API │  Secret Management
 │   (Express)  │
 └──────┬───────┘
        │
@@ -124,20 +132,31 @@ KEYDROP_KEY=proj_a1b2c3d4e5f6g7h8
 
 ### Secret Flow
 
-1. **Push**: Developer runs `keydrop push`
+1. **Login**: Developer runs `keydrop login`
+   - CLI generates temporary token
+   - Opens browser to Clerk authentication
+   - User signs in via Clerk (email/password, OAuth, etc.)
+   - Clerk issues JWT token
+   - CLI polls API and receives JWT
+   - JWT saved to `~/.keydrop/config.json`
+
+2. **Push**: Developer runs `keydrop push`
    - CLI reads `.env` file
    - Encrypts with AES-256-GCM
    - Uploads to API with JWT authentication
-   - API stores encrypted data in PostgreSQL
+   - API verifies JWT with Clerk
+   - Stores encrypted secrets in PostgreSQL
    - Returns `KEYDROP_KEY`
+   - CLI overwrites `.env` with only `KEYDROP_KEY`
 
-2. **Development**: Developer runs `keydrop run -- npm run dev`
-   - CLI fetches encrypted secrets using `KEYDROP_KEY`
+3. **Development**: Developer runs `keydrop run -- npm run dev`
+   - CLI reads `KEYDROP_KEY` from `.env`
+   - Fetches encrypted secrets from API
    - Decrypts locally
    - Injects into command environment
    - Command runs with all secrets available
 
-3. **Runtime**: App starts in production
+4. **Runtime**: App starts in production
    - SDK reads `KEYDROP_KEY` from environment
    - Fetches encrypted secrets from API
    - Decrypts and injects into `process.env`
@@ -154,13 +173,17 @@ npm install -g keydrop-cli
 npm install keydrop
 ```
 
-### 2. Authenticate
+### 2. Login (Browser-based)
 
 ```bash
 keydrop login
 ```
 
-Enter your email and password. Your JWT token is stored locally.
+This will:
+- Open your browser
+- Redirect to Clerk authentication
+- Sign in with email/password or OAuth (Google, GitHub, etc.)
+- Automatically save your session token
 
 ### 3. Push Your Secrets
 
@@ -168,7 +191,7 @@ Enter your email and password. Your JWT token is stored locally.
 keydrop push
 ```
 
-**Before** (`your .env file`):
+**Before** (your `.env` file):
 ```env
 DATABASE_URL=postgres://user:pass@host/db
 API_KEY=sk_live_abc123
@@ -224,7 +247,7 @@ npm install keydrop
 npm install -g keydrop-cli
 ```
 
-**Push secrets:**
+**Login and push secrets:**
 ```bash
 keydrop login
 keydrop push
@@ -265,7 +288,7 @@ npm install keydrop
 npm install -g keydrop-cli
 ```
 
-**Push secrets:**
+**Login and push secrets:**
 ```bash
 keydrop login
 keydrop push
@@ -375,6 +398,13 @@ CMD ["node", "index.js"]
 
 ## 🔒 Security
 
+### Authentication
+
+- **Clerk** for user authentication (OAuth, social login, email/password)
+- **Browser-based CLI login** (secure OAuth flow)
+- **JWT tokens** with Clerk verification
+- **HTTPS-only** communication in production
+
 ### Encryption
 
 - **Algorithm**: AES-256-GCM
@@ -382,16 +412,10 @@ CMD ["node", "index.js"]
 - **IV**: Random 12 bytes per encryption
 - **Auth Tag**: 16 bytes for integrity verification
 
-### Authentication
-
-- **JWT tokens** with 30-day expiry
-- **Bcrypt** password hashing (10 rounds)
-- **HTTPS-only** communication in production
-
 ### Authorization
 
 - Users can only access their own projects
-- Ownership verification on all project operations
+- Ownership verification via Clerk user ID
 - Runtime secret fetch uses `KEYDROP_KEY` (no user auth required)
 
 ### Storage
@@ -411,7 +435,11 @@ CMD ["node", "index.js"]
 keydrop login
 ```
 
-Make sure you're logged in before pushing secrets.
+Make sure you're logged in via browser before pushing secrets.
+
+### Browser doesn't open during login
+
+Copy the URL shown in the terminal and open it manually in your browser.
 
 ### "KEYDROP_KEY not found"
 
@@ -457,13 +485,13 @@ keydrop/
 │   ├── cli/              # CLI tool (keydrop command)
 │   │   ├── src/
 │   │   │   ├── commands/
-│   │   │   │   ├── auth.js      # login/logout/register
+│   │   │   │   ├── auth.js      # Browser-based login/logout
 │   │   │   │   ├── push.js      # Upload secrets
 │   │   │   │   ├── pull.js      # Download secrets
 │   │   │   │   └── run.js       # Run with secrets
 │   │   │   └── index.js
 │   │   └── bin/
-│   │       └── keydrop.js
+│   │       └── envlock.js
 │   │
 │   ├── sdk/              # Runtime SDK
 │   │   └── src/
@@ -474,6 +502,7 @@ keydrop/
 │       │   ├── routes/
 │       │   │   └── secrets.js    # API endpoints
 │       │   └── lib/
+│       │       ├── clerk.js      # Clerk integration
 │       │       └── auth.js       # JWT utilities
 │       └── prisma/
 │           └── schema.prisma     # Database schema
@@ -518,6 +547,6 @@ MIT © [Devansh Jagtap](https://github.com/devansh-jagtap)
   <p>
     <a href="https://github.com/devansh-jagtap/keydrop">GitHub</a> •
     <a href="https://www.npmjs.com/package/keydrop">npm</a> •
-    <a href="https://keydrop.dev">Website</a>
+    <a href="https://keydrops.tech">Website</a>
   </p>
 </div>

@@ -13,13 +13,16 @@ npm install -g keydrop-cli
 
 ## 🚀 Quick Start
 
-### 1. Login
+### 1. Login (Browser-based)
 
 ```bash
 keydrop login
 ```
 
-You'll be prompted for email and password. Your JWT token is saved locally in `~/.keydrop/config.json`.
+- Opens your browser automatically
+- Redirects to Clerk authentication
+- Sign in with email/password or OAuth (Google, GitHub, etc.)
+- JWT token automatically saved locally
 
 ### 2. Push Your Secrets
 
@@ -27,7 +30,7 @@ You'll be prompted for email and password. Your JWT token is saved locally in `~
 keydrop push
 ```
 
-This reads your `.env` file, encrypts it, uploads it, and replaces your `.env` with:
+Your `.env` is encrypted, uploaded, and replaced with:
 
 ```env
 KEYDROP_KEY=proj_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
@@ -41,7 +44,7 @@ keydrop run -- next build
 keydrop run -- node index.js
 ```
 
-Secrets are injected into the command environment automatically.
+Secrets are automatically injected into the command environment.
 
 ---
 
@@ -49,44 +52,73 @@ Secrets are injected into the command environment automatically.
 
 ### `keydrop login`
 
-Authenticate with KeyDrop and save your JWT token locally.
+Authenticate via browser using Clerk.
 
 **Usage:**
 ```bash
 keydrop login
 ```
 
-**Prompts:**
+**What happens:**
+1. CLI generates temporary token
+2. Opens browser to Clerk authentication page
+3. You sign in via Clerk (supports OAuth, email/password, etc.)
+4. Clerk issues JWT token
+5. CLI polls API and receives JWT
+6. JWT saved to `~/.keydrop/config.json`
+
+**Example Output:**
 ```
-Email: your@email.com
-Password: ******
-✓ Logged in successfully
+ Logging in to KeyDrop...
+
+Opening browser to complete login...
+
+  https://keydrops.tech/auth/cli?token=cli_temp_xxx
+
+If browser didn't open, copy the URL above.
+
+ Waiting for you to login in the browser...
+
+ Logged in successfully!
 ```
 
-**What it does:**
-- Prompts for email and password
-- Sends credentials to `/auth/login` endpoint
-- Receives JWT token (30-day expiry)
-- Saves token to `~/.keydrop/config.json`
-- Token is used for all subsequent authenticated commands
-
-**Token storage location:**
+**Token Storage:**
 ```
 ~/.keydrop/config.json
 ```
 
-**Example output:**
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
+**Authentication Flow:**
 ```
+CLI (keydrop login)
+  ↓
+Generate temp token
+  ↓
+Open browser → Clerk
+  ↓
+User signs in
+  ↓
+Clerk issues JWT
+  ↓
+API stores JWT → temp token mapping
+  ↓
+CLI polls API
+  ↓
+Receives JWT
+  ↓
+Saves to ~/.keydrop/config.json
+```
+
+**Supported Auth Methods (via Clerk):**
+- Email/Password
+- Google OAuth
+- GitHub OAuth
+- Other OAuth providers configured in Clerk
 
 ---
 
 ### `keydrop logout`
 
-Remove your saved authentication token.
+Remove saved authentication token.
 
 **Usage:**
 ```bash
@@ -96,7 +128,7 @@ keydrop logout
 **What it does:**
 - Deletes `~/.keydrop/config.json`
 - Removes stored JWT token
-- You'll need to login again to use authenticated commands
+- You'll need to login again for authenticated commands
 
 ---
 
@@ -115,10 +147,11 @@ keydrop push
 1. Reads your `.env` file from current directory
 2. Parses all environment variables
 3. Encrypts them with AES-256-GCM
-4. Uploads encrypted data to KeyDrop API
-5. API stores encrypted secrets in database
-6. Returns a unique `KEYDROP_KEY`
-7. Overwrites your `.env` with only `KEYDROP_KEY`
+4. Sends encrypted data to API with JWT token
+5. API verifies JWT with Clerk
+6. Stores encrypted secrets in database (linked to your Clerk user ID)
+7. Returns unique `KEYDROP_KEY`
+8. Overwrites `.env` with only `KEYDROP_KEY`
 
 **Before** (`.env`):
 ```env
@@ -127,6 +160,7 @@ API_KEY=sk_live_abc123xyz
 STRIPE_SECRET=sk_test_789xyz
 JWT_SECRET=my-super-secret-key
 REDIS_URL=redis://localhost:6379
+NEXT_PUBLIC_APP_URL=https://myapp.com
 ```
 
 **After** (`.env`):
@@ -136,7 +170,13 @@ KEYDROP_KEY=proj_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0
 
 **API Endpoint:** `POST /upload`
 
-**Request:**
+**Request Headers:**
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+```
+
+**Request Body:**
 ```json
 {
   "secrets": {
@@ -172,11 +212,9 @@ keydrop pull
 1. Reads `KEYDROP_KEY` from your `.env` file
 2. Fetches encrypted secrets from API
 3. Decrypts secrets locally
-4. Writes all secrets back to `.env` file
+4. Overwrites `.env` with all decrypted secrets
 
 **Use case:** Restore original secrets when needed for debugging or local modifications.
-
-**Example:**
 
 **Before** (`.env`):
 ```env
@@ -190,6 +228,7 @@ API_KEY=sk_live_abc123xyz
 STRIPE_SECRET=sk_test_789xyz
 JWT_SECRET=my-super-secret-key
 REDIS_URL=redis://localhost:6379
+NEXT_PUBLIC_APP_URL=https://myapp.com
 ```
 
 ---
@@ -203,15 +242,14 @@ Run any command with secrets injected into the environment.
 keydrop run -- <command>
 ```
 
-**Authentication:** Not required (uses `KEYDROP_KEY` from environment)
+**Authentication:** NOT required (uses `KEYDROP_KEY` from environment)
 
 **What it does:**
-1. Reads `KEYDROP_KEY` from `.env` or environment
+1. Reads `KEYDROP_KEY` from `.env` or `process.env`
 2. Fetches encrypted secrets from API
 3. Decrypts secrets locally
-4. Injects ALL secrets into command environment
-5. Spawns the specified command with secrets available
-6. Command runs with `process.env` populated
+4. Merges secrets with current environment
+5. Spawns command with ALL secrets available via `process.env`
 
 **Examples:**
 
@@ -220,6 +258,7 @@ keydrop run -- <command>
 keydrop run -- npm run dev
 keydrop run -- next dev
 keydrop run -- node index.js
+keydrop run -- yarn dev
 ```
 
 **Build:**
@@ -227,31 +266,40 @@ keydrop run -- node index.js
 keydrop run -- next build
 keydrop run -- npm run build
 keydrop run -- vite build
+keydrop run -- tsc
 ```
 
 **Testing:**
 ```bash
 keydrop run -- npm test
 keydrop run -- jest
+keydrop run -- vitest run
 ```
 
 **Database migrations:**
 ```bash
 keydrop run -- npx prisma migrate dev
+keydrop run -- npx prisma db push
 keydrop run -- knex migrate:latest
 ```
 
 **How it works:**
 
 ```javascript
-// 1. Fetch secrets using KEYDROP_KEY
-const secrets = await fetchSecrets(KEYDROP_KEY);
+// 1. Read KEYDROP_KEY
+const key = process.env.KEYDROP_KEY || readFromEnvFile();
 
-// 2. Merge with current environment
+// 2. Fetch secrets
+const response = await fetch(`${API_URL}/secrets`, {
+  headers: { Authorization: `Bearer ${key}` }
+});
+const secrets = await response.json();
+
+// 3. Merge with environment
 const env = { ...process.env, ...secrets };
 
-// 3. Spawn command with injected secrets
-spawn(command, args, { env });
+// 4. Spawn command
+spawn(command, args, { env, stdio: 'inherit' });
 ```
 
 **API Endpoint:** `GET /secrets`
@@ -267,10 +315,13 @@ Authorization: Bearer proj_a1b2c3d4e5f6g7h8...
   "secrets": {
     "DATABASE_URL": "postgres://...",
     "API_KEY": "sk_live_...",
+    "NEXT_PUBLIC_APP_URL": "https://...",
     ...
   }
 }
 ```
+
+**Note:** `NEXT_PUBLIC_*` variables and other build-time vars are also injected!
 
 ---
 
@@ -286,6 +337,15 @@ keydrop login
 keydrop push
 ```
 
+### Custom Website URL
+
+For custom Clerk authentication page:
+
+```bash
+export KEYDROP_WEBSITE_URL=https://your-website.com
+keydrop login
+```
+
 ### Token Storage
 
 JWT tokens are stored in:
@@ -296,11 +356,10 @@ JWT tokens are stored in:
 **Format:**
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "loggedInAt": "2024-01-15T10:30:00.000Z"
 }
 ```
-
-**Token expiry:** 30 days
 
 ---
 
@@ -309,13 +368,14 @@ JWT tokens are stored in:
 ### Complete Workflow
 
 ```bash
-# 1. Login
+# 1. Login via browser
 keydrop login
 
 # 2. Create your .env
 cat > .env << EOF
 DATABASE_URL=postgres://localhost/mydb
 API_KEY=sk_test_abc123
+STRIPE_SECRET=sk_test_xyz789
 EOF
 
 # 3. Push secrets
@@ -384,19 +444,19 @@ build:
 
 **Development:**
 ```bash
-# .env.dev
+# Use dev .env
 keydrop push
 # Save as KEYDROP_KEY_DEV
 ```
 
 **Production:**
 ```bash
-# .env.prod
+# Use prod .env  
 keydrop push
 # Save as KEYDROP_KEY_PROD
 ```
 
-**Use environment-specific keys:**
+**Run with specific environment:**
 ```bash
 KEYDROP_KEY=$KEYDROP_KEY_DEV keydrop run -- npm run dev
 KEYDROP_KEY=$KEYDROP_KEY_PROD keydrop run -- npm start
@@ -412,7 +472,15 @@ KEYDROP_KEY=$KEYDROP_KEY_PROD keydrop run -- npm start
 keydrop login
 ```
 
-Make sure you're authenticated before running `keydrop push`.
+Make sure you complete the browser authentication.
+
+### Browser doesn't open
+
+Copy the URL from terminal output and open manually:
+
+```
+https://keydrops.tech/auth/cli?token=cli_temp_xxx
+```
 
 ### "No .env file found"
 
@@ -431,65 +499,61 @@ When using `keydrop run`, ensure `.env` contains:
 KEYDROP_KEY=proj_...
 ```
 
-Or set it as environment variable:
+Or set as environment variable:
 
 ```bash
 export KEYDROP_KEY=proj_a1b2c3d4e5f6g7h8
 keydrop run -- npm run dev
 ```
 
-### "Invalid credentials"
+### "Failed to connect to KeyDrop API"
 
-Double-check email/password:
-
-```bash
-keydrop logout
-keydrop login
-```
-
-### Token expired
-
-JWT tokens expire after 30 days. Re-login:
+Check your internet connection and API URL:
 
 ```bash
-keydrop login
-```
-
-### API connection error
-
-Check API URL is correct:
-
-```bash
-# Default
 echo $KEYDROP_API_URL
-
-# Or set custom
-export KEYDROP_API_URL=https://your-api.com
+# Should be: https://keydrop-1wzo.onrender.com (or your custom URL)
 ```
+
+### Login timeout
+
+The CLI waits up to 2 minutes for browser login. If it times out:
+
+1. Complete signin faster
+2. Check browser didn't block the authentication page
+3. Try again: `keydrop login`
 
 ---
 
 ## 🔒 Security
 
-### JWT Tokens
+### Clerk Authentication
 
-- 30-day expiry
-- Stored in `~/.keydrop/config.json`
-- Used for authenticated API calls
-- Not sent to third parties
+- **OAuth providers**: Google, GitHub, etc.
+- **Email/Password** with secure hashing
+- **MFA support** (if enabled in Clerk)
+- **Session management** via JWT tokens
 
 ### Encryption
 
-- AES-256-GCM encryption
-- Encryption happens locally before upload
+- **AES-256-GCM** encryption
+- Encryption happens **locally** before upload
 - Only encrypted data sent to server
-- HTTPS-only communication
+- **HTTPS-only** communication
+
+### Token Security
+
+- JWT tokens stored in `~/.keydrop/config.json`
+- Tokens are issued by Clerk (trusted auth provider)
+- Tokens verified on every API request
+- Not shared with third parties
 
 ### Project Keys
 
-- `KEYDROP_KEY` is safe to commit (it's just a reference)
-- Keys are unguessable (cryptographically random)
+- `KEYDROP_KEY` is safe to commit to Git
+- Keys are cryptographically random
 - No sensitive data in the key itself
+- Keys only work with API - useless if API is down
 
 ---
 
