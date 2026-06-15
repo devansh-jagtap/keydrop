@@ -1,61 +1,136 @@
-# keydrop
+# KeyDrop SDK
 
-> Runtime SDK for KeyDrop — fetches and injects your secrets automatically.
+> Runtime SDK for fetching and injecting environment variables from KeyDrop
 
-## Install
+[![npm version](https://img.shields.io/npm/v/keydrop?color=22d3a5&logo=npm)](https://www.npmjs.com/package/keydrop)
+[![License: MIT](https://img.shields.io/github/license/devansh-jagtap/keydrop?color=22d3a5)](https://github.com/devansh-jagtap/keydrop/blob/main/LICENSE)
+
+## 📦 Installation
 
 ```bash
 npm install keydrop
 ```
 
-## Usage
+## 🚀 Quick Start
 
-Add one line at the very top of your app entry point:
+### Next.js
 
-```js
-import "keydrop/init";
+Create `instrumentation.ts` in your project root:
+
+```typescript
+export async function register() {
+  const { init } = await import("keydrop");
+  await init();
+}
 ```
 
-That's it. All your secrets are now available via `process.env` as normal.
+> **Note:** Enable instrumentation hook in `next.config.js` if needed:
 
-## Requirements
-
-Your environment must have `KEYDROP_KEY` set. Get one by running:
-
-```bash
-npx keydrop-cli push
+```javascript
+module.exports = {
+  experimental: {
+    instrumentationHook: true,
+  },
+};
 ```
 
-## How It Works
+### Node.js / Express
+
+```javascript
+import { init } from "keydrop";
+
+await init();
+
+// Your app code below
+const app = express();
+app.listen(3000);
+```
+
+If top-level await is not supported:
+
+```javascript
+import { init } from "keydrop";
+
+(async () => {
+  await init();
+  const app = express();
+  app.listen(3000);
+})();
+```
+
+## 🔧 How It Works
 
 1. Reads `KEYDROP_KEY` from `process.env`
-2. Calls the KeyDrop API with the key as auth
-3. Receives your decrypted secrets
-4. Injects each secret into `process.env`
-5. Your app code works without any changes
+2. Fetches encrypted secrets from KeyDrop API
+3. Decrypts them securely
+4. Injects all variables into `process.env`
 
-## Example
+Your existing code works unchanged:
 
-```js
-// index.js
-import "keydrop/init";
-
-// works exactly as before — no changes needed
-const db = mongoose.connect(process.env.MONGO_URI);
-const token = jwt.sign(payload, process.env.JWT_SECRET);
+```javascript
+process.env.DATABASE_URL
+process.env.API_KEY
+process.env.JWT_SECRET
 ```
 
-## Environment Variables
+## 📖 API Reference
 
-| Variable          | Required | Description                          |
-| ----------------- | -------- | ------------------------------------ |
-| `KEYDROP_KEY`     | Required | Your project key from `keydrop push` |
-| `KEYDROP_API_URL` | Optional | Custom API URL for self hosting      |
+### `init(options?)`
 
-## Vercel / Render
+Initializes KeyDrop and loads environment variables.
 
-Just add `KEYDROP_KEY` to your platform's environment variables dashboard. No `.env` file needed — the platform injects it directly.
+**Parameters:**
 
-## License
+- `options` (optional):
+  - `apiUrl`: Custom KeyDrop API URL (default: `https://api.keydrop.dev`)
+  - `key`: Override `KEYDROP_KEY` (default: reads from `process.env.KEYDROP_KEY`)
 
-MIT
+**Returns:** `Promise<void>`
+
+**Example:**
+
+```javascript
+import { init } from "keydrop";
+
+await init({
+  apiUrl: "https://your-custom-api.com",
+  key: "proj_custom_key",
+});
+```
+
+## 🔒 Security
+
+- All secrets are encrypted with AES-256-GCM
+- HTTPS-only communication
+- Secrets are injected directly into memory
+- No secrets are written to disk
+
+## 🐛 Troubleshooting
+
+### "KEYDROP_KEY not found"
+
+Make sure `KEYDROP_KEY` is set in your environment:
+
+```env
+KEYDROP_KEY=proj_your_key_here
+```
+
+### Secrets not loading
+
+1. Verify your `KEYDROP_KEY` is correct
+2. Check that `init()` is called before accessing `process.env`
+3. Ensure the KeyDrop API is accessible
+
+## 📚 Documentation
+
+- [Main Documentation](https://github.com/devansh-jagtap/keydrop)
+- [User Guide](https://github.com/devansh-jagtap/keydrop/blob/main/USER_GUIDE.md)
+- [CLI Documentation](https://github.com/devansh-jagtap/keydrop/tree/main/packages/cli)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see the [Contributing Guide](https://github.com/devansh-jagtap/keydrop/blob/main/CONTRIBUTING.md).
+
+## 📄 License
+
+MIT © [Devansh Jagtap](https://github.com/devansh-jagtap)
