@@ -92,7 +92,7 @@ export default function CLIPage() {
             fontFamily: "var(--font-sans)",
           }}
         >
-          Install KeyDrop CLI globally to manage secrets from your terminal.
+          Install the CLI for secret management and build-time injection. Use the SDK for runtime loading with init().
         </p>
       </div>
 
@@ -114,10 +114,23 @@ export default function CLIPage() {
             borderRadius: "10px",
             background: "var(--bg-card)",
             border: "1px solid var(--border)",
+            marginBottom: "12px",
           }}
         >
           <code style={{ fontFamily: "var(--font-mono)", fontSize: "14px", color: "var(--accent)" }}>
-            npm install -g keydrop-cli@latest
+            npm install keydrop
+          </code>
+        </div>
+        <div
+          style={{
+            padding: "14px 18px",
+            borderRadius: "10px",
+            background: "var(--bg-card)",
+            border: "1px solid var(--border)",
+          }}
+        >
+          <code style={{ fontFamily: "var(--font-mono)", fontSize: "14px", color: "var(--accent)" }}>
+            npm install -g keydrop-cli
           </code>
         </div>
         <p style={{ fontSize: "13px", color: "var(--text-muted)", marginTop: "12px", fontFamily: "var(--font-sans)" }}>

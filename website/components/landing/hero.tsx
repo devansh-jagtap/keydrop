@@ -64,7 +64,7 @@ export default function Hero() {
           fontFamily: "var(--font-sans)",
         }}
       >
-        Stop passing around .env files. One command packs all your secrets into a single deployable key. Your app works exactly the same.
+        Push your .env once, deploy with a single KEYDROP_KEY. Use keydrop run for builds and init() for runtime — one key, deploy anywhere.
       </p>
 
       {/* before/after */}
@@ -93,7 +93,7 @@ export default function Hero() {
           </div>
           <div style={{ padding: "20px" }}>
             <pre style={{ fontSize: "12px", lineHeight: "1.8", fontFamily: "var(--font-mono)", color: "var(--text-secondary)", margin: 0 }}>
-              {`MONGO_URI=mongodb://...\nJWT_SECRET=abc123\nSTRIPE_KEY=sk_test_xxx\nOPENAI_KEY=sk-xxxx`}
+              {`DATABASE_URL=...\nJWT_SECRET=...\nOPENAI_API_KEY=...\nSTRIPE_SECRET_KEY=...`}
             </pre>
           </div>
         </div>
@@ -111,7 +111,7 @@ export default function Hero() {
           </div>
           <div style={{ padding: "20px" }}>
             <pre style={{ fontSize: "12px", lineHeight: "1.8", fontFamily: "var(--font-mono)", margin: 0, paddingBottom: "14px" }}>
-              <span style={{ color: "var(--text-muted)" }}>ENLOCK_KEY=</span>
+              <span style={{ color: "var(--text-muted)" }}>KEYDROP_KEY=</span>
               <span style={{ color: "var(--accent)" }} className="cursor-blink">
                 <RandomizedTextEffect text="proj_x82js8sh" />
               </span>
@@ -126,8 +126,9 @@ export default function Hero() {
       {/* ctas */}
       <div className="animate-fade-up delay-5" style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center" }}>
         <ButtonCreative label="How it works" href="#how-it-works" />
+        <ButtonCreative label="Read the docs" href="/docs" />
         <a
-          href="https://github.com/devansh-jagtap/enlock"
+          href="https://github.com/devansh-jagtap/keydrop"
           target="_blank"
           rel="noopener noreferrer"
           style={{

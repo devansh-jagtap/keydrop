@@ -38,7 +38,7 @@ export default function SDKPage() {
             fontFamily: "var(--font-sans)",
           }}
         >
-          The SDK is optional. Use <code style={{ fontFamily: "var(--font-mono)", background: "var(--bg-secondary)", padding: "2px 8px", borderRadius: "6px", fontSize: "15px" }}>keydrop run</code> when you want zero code changes.
+          The SDK loads secrets at runtime into process.env. Pair it with keydrop run for build-time injection.
         </p>
       </div>
 
@@ -298,8 +298,7 @@ export default function SDKPage() {
             When to use the SDK
           </h3>
           <p style={{ fontSize: "14px", lineHeight: "1.6", color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>
-            Use the SDK when you want secrets loaded automatically at startup in production. 
-            For development and CI/CD, <code style={{ fontFamily: "var(--font-mono)", background: "var(--bg)", padding: "2px 6px", borderRadius: "4px", fontSize: "13px" }}>keydrop run</code> is simpler.
+            Use init() in production so secrets load when your app starts. Use keydrop run for local development and CI/CD builds.
           </p>
         </div>
       </section>

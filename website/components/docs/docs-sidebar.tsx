@@ -8,8 +8,15 @@ const navItems = [
     title: "Getting Started",
     items: [
       { label: "Introduction", href: "/docs", badge: null },
-      { label: "Quick Start", href: "/docs/getting-started", badge: null },
       { label: "How it Works", href: "/docs/how-it-works", badge: null },
+      { label: "Quick Start", href: "/docs/getting-started", badge: null },
+    ],
+  },
+  {
+    title: "Guides",
+    items: [
+      { label: "Framework Support", href: "/docs/frameworks", badge: null },
+      { label: "Deploy Anywhere", href: "/docs/deployment", badge: null },
     ],
   },
   {
@@ -30,18 +37,9 @@ const navItems = [
     ],
   },
   {
-    title: "Guides",
-    items: [
-      { label: "Deployment", href: "/docs/deployment", badge: null },
-      { label: "CI/CD", href: "/docs/cicd", badge: "Soon" },
-      { label: "Team Secrets", href: "/docs/teams", badge: "Soon" },
-    ],
-  },
-  {
     title: "Resources",
     items: [
       { label: "Security", href: "/docs/security", badge: null },
-      { label: "FAQ", href: "/docs/faq", badge: null },
     ],
   },
 ];

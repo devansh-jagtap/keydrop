@@ -5,23 +5,28 @@ import { useEffect, useRef, useState } from "react";
 const steps = [
   {
     number: "01",
-    commands: ["npm install -g keydrop-cli@latest"],
     title: "Install",
-    description: "Install the CLI globally. One command, one-time setup.",
+    description:
+      "Install both the KeyDrop CLI and SDK. The CLI handles secret management and build-time injection. The SDK handles runtime secret loading.",
+    commands: ["npm install keydrop", "npm install -g keydrop-cli"],
   },
   {
     number: "02",
-    commands: ["keydrop push"],
     title: "Push",
     description:
-      "Your .env gets encrypted with AES-256 and stored securely. You get one key back.",
+      "Upload your existing .env file. Your secrets are securely stored and replaced with a single project key.",
+    commands: ["keydrop login", "keydrop push"],
   },
   {
     number: "03",
-    commands: ["keydrop run -- npm start", "keydrop run -- next build"],
     title: "Run",
     description:
-      "Run any command with secrets injected. No SDK, no code changes — just prefix your script with keydrop run.",
+      "Use keydrop run for development and builds. Call init() at runtime to load secrets into process.env.",
+    commands: [
+      "keydrop run -- npm run dev",
+      "keydrop run -- next build",
+      'import { init } from "keydrop"; await init();',
+    ],
   },
 ];
 
@@ -79,7 +84,7 @@ export default function HowItWorks() {
         >
           Three steps.
           <br />
-          <span style={{ color: "var(--text-muted)" }}>That's all.</span>
+          <span style={{ color: "var(--text-muted)" }}>That&apos;s all.</span>
         </h2>
       </div>
 
@@ -124,15 +129,10 @@ export default function HowItWorks() {
             >
               {step.number}
             </span>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "8px",
-              }}
-            >
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               {step.commands.map((command, commandIndex) => {
                 const key = `${i}-${commandIndex}`;
+                const isCode = command.includes("import");
                 return (
                   <div
                     key={key}
@@ -152,7 +152,7 @@ export default function HowItWorks() {
                       gap: "12px",
                     }}
                   >
-                    <div>$ {command}</div>
+                    <div>{isCode ? command : `$ ${command}`}</div>
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(command);
@@ -169,14 +169,9 @@ export default function HowItWorks() {
                         alignItems: "center",
                         justifyContent: "center",
                         transition: "color 0.2s",
+                        flexShrink: 0,
                       }}
                       title="Copy command"
-                      onMouseEnter={(e) => {
-                        if (copiedKey !== key) e.currentTarget.style.color = "var(--text)";
-                      }}
-                      onMouseLeave={(e) => {
-                        if (copiedKey !== key) e.currentTarget.style.color = "var(--text-muted)";
-                      }}
                     >
                       {copiedKey === key ? (
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

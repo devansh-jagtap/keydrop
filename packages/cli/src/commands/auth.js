@@ -4,7 +4,7 @@ import axios from "axios";
 import { exec } from "child_process";
 
 const API_URL = process.env.KEYDROP_API_URL || "https://keydrop-1wzo.onrender.com";
-const WEBSITE_URL = process.env.KEYDROP_WEBSITE_URL || "https://keydrop-orcin.vercel.app";
+const WEBSITE_URL = process.env.KEYDROP_WEBSITE_URL || "https://keydrops.tech";
 const CONFIG_DIR = path.join(process.env.HOME || process.env.USERPROFILE, ".keydrop");
 const CONFIG_PATH = path.join(CONFIG_DIR, "config.json");
 

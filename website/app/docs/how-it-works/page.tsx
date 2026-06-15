@@ -1,163 +1,170 @@
 "use client";
 
+import Link from "next/link";
+import CodeBlock from "@/components/docs/code-block";
+
+const verified = [
+  "keydrop push",
+  "keydrop pull",
+  "keydrop run",
+  "Runtime secret injection",
+  "Build-time secret injection",
+  "Next.js",
+  "Vercel",
+  "NEXT_PUBLIC variables",
+  "Single KEYDROP_KEY deployment workflow",
+];
+
 export default function HowItWorksPage() {
   return (
     <>
       <div style={{ marginBottom: "48px" }}>
-        <p
-          style={{
-            fontSize: "12px",
-            fontWeight: "600",
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            color: "var(--text-muted)",
-            marginBottom: "12px",
-            fontFamily: "var(--font-sans)",
-          }}
-        >
+        <p style={{ fontSize: "12px", fontWeight: "600", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "12px", fontFamily: "var(--font-sans)" }}>
           Understanding
         </p>
-        <h1
-          style={{
-            fontSize: "clamp(2rem, 4vw, 2.75rem)",
-            fontWeight: "700",
-            letterSpacing: "-0.04em",
-            lineHeight: "1.15",
-            color: "var(--text)",
-            marginBottom: "16px",
-            fontFamily: "var(--font-sans)",
-          }}
-        >
-          How it Works
+        <h1 style={{ fontSize: "clamp(2rem, 4vw, 2.75rem)", fontWeight: "700", letterSpacing: "-0.04em", lineHeight: "1.15", color: "var(--text)", marginBottom: "16px", fontFamily: "var(--font-sans)" }}>
+          How It Works
         </h1>
-        <p
-          style={{
-            fontSize: "17px",
-            lineHeight: "1.7",
-            color: "var(--text-secondary)",
-            fontFamily: "var(--font-sans)",
-          }}
-        >
-          KeyDrop encrypts your secrets locally and gives you a single key to rule them all.
+        <p style={{ fontSize: "17px", lineHeight: "1.7", color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>
+          Three steps. That&apos;s all.
         </p>
       </div>
 
-      <section id="architecture" style={{ marginBottom: "48px", scrollMarginTop: "100px" }}>
-        <h2 style={{ fontSize: "20px", fontWeight: "600", color: "var(--text)", marginBottom: "16px", fontFamily: "var(--font-sans)" }}>
-          The Architecture
+      <section id="install" style={{ marginBottom: "56px", scrollMarginTop: "100px" }}>
+        <h2 style={{ fontSize: "20px", fontWeight: "600", color: "var(--text)", marginBottom: "8px", fontFamily: "var(--font-sans)" }}>
+          01. Install
         </h2>
-        <p style={{ fontSize: "15px", lineHeight: "1.7", color: "var(--text-secondary)", marginBottom: "20px", fontFamily: "var(--font-sans)" }}>
-          KeyDrop follows a zero-knowledge architecture. Your secrets are encrypted on your machine before they ever touch our servers. 
-          We never see your plaintext values.
+        <p style={{ fontSize: "15px", lineHeight: "1.7", color: "var(--text-secondary)", marginBottom: "16px", fontFamily: "var(--font-sans)" }}>
+          Install both the KeyDrop CLI and SDK.
         </p>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
-          {[
-            { step: "1", title: "Local Encryption", desc: "Your .env is encrypted locally using AES-256 before uploading." },
-            { step: "2", title: "Secure Storage", desc: "Encrypted data is stored with your project key as the identifier." },
-            { step: "3", title: "Key-based Retrieval", desc: "Use your project key to decrypt secrets at runtime." },
-            { step: "4", title: "Environment Injection", desc: "Secrets are injected as environment variables into your process." },
-          ].map((item) => (
-            <div
-              key={item.step}
-              style={{
-                display: "flex",
-                gap: "16px",
-                padding: "20px",
-                borderRadius: "12px",
-                background: "var(--bg-card)",
-                border: "1px solid var(--border)",
-              }}
-            >
-              <div
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "8px",
-                  background: "var(--accent)",
-                  color: "#080808",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "14px",
-                  fontWeight: "700",
-                  fontFamily: "var(--font-sans)",
-                  flexShrink: 0,
-                }}
-              >
-                {item.step}
-              </div>
-              <div>
-                <h3 style={{ fontSize: "15px", fontWeight: "600", color: "var(--text)", marginBottom: "6px", fontFamily: "var(--font-sans)" }}>
-                  {item.title}
-                </h3>
-                <p style={{ fontSize: "14px", lineHeight: "1.5", color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>
-                  {item.desc}
-                </p>
-              </div>
-            </div>
-          ))}
+        <div style={{ marginBottom: "16px" }}>
+          <CodeBlock code={`npm install keydrop\nnpm install -g keydrop-cli`} language="bash" />
         </div>
+        <ul style={{ margin: 0, padding: "0 0 0 20px", display: "flex", flexDirection: "column", gap: "8px" }}>
+          <li style={{ fontSize: "15px", lineHeight: "1.6", color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>
+            The CLI handles secret management and build-time injection.
+          </li>
+          <li style={{ fontSize: "15px", lineHeight: "1.6", color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>
+            The SDK handles runtime secret loading.
+          </li>
+        </ul>
       </section>
 
-      <section id="encryption" style={{ marginBottom: "48px", scrollMarginTop: "100px" }}>
-        <h2 style={{ fontSize: "20px", fontWeight: "600", color: "var(--text)", marginBottom: "16px", fontFamily: "var(--font-sans)" }}>
-          Encryption Details
+      <section id="push" style={{ marginBottom: "56px", scrollMarginTop: "100px" }}>
+        <h2 style={{ fontSize: "20px", fontWeight: "600", color: "var(--text)", marginBottom: "8px", fontFamily: "var(--font-sans)" }}>
+          02. Push
         </h2>
-        <div
-          style={{
-            padding: "20px 24px",
-            borderRadius: "12px",
-            background: "var(--bg-card)",
-            border: "1px solid var(--border)",
-          }}
-        >
-          <div style={{ display: "grid", gap: "16px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid var(--border)" }}>
-              <span style={{ fontSize: "14px", color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>Algorithm</span>
-              <span style={{ fontSize: "14px", color: "var(--text)", fontFamily: "var(--font-mono)" }}>AES-256-GCM</span>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid var(--border)" }}>
-              <span style={{ fontSize: "14px", color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>Key Derivation</span>
-              <span style={{ fontSize: "14px", color: "var(--text)", fontFamily: "var(--font-mono)" }}>PBKDF2</span>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid var(--border)" }}>
-              <span style={{ fontSize: "14px", color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>Key Length</span>
-              <span style={{ fontSize: "14px", color: "var(--text)", fontFamily: "var(--font-mono)" }}>256 bits</span>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 0" }}>
-              <span style={{ fontSize: "14px", color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>Transport</span>
-              <span style={{ fontSize: "14px", color: "var(--text)", fontFamily: "var(--font-mono)" }}>TLS 1.3</span>
-            </div>
+        <p style={{ fontSize: "15px", lineHeight: "1.7", color: "var(--text-secondary)", marginBottom: "16px", fontFamily: "var(--font-sans)" }}>
+          Upload your existing .env file.
+        </p>
+        <div style={{ marginBottom: "24px" }}>
+          <CodeBlock code={`keydrop login\nkeydrop push`} language="bash" />
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px" }}>
+          <div>
+            <p style={{ fontSize: "13px", fontWeight: "600", color: "var(--text-muted)", marginBottom: "10px", fontFamily: "var(--font-sans)" }}>Before</p>
+            <CodeBlock
+              code={`DATABASE_URL=...\nJWT_SECRET=...\nOPENAI_API_KEY=...\nSTRIPE_SECRET_KEY=...`}
+              language="env"
+            />
+          </div>
+          <div>
+            <p style={{ fontSize: "13px", fontWeight: "600", color: "var(--text-muted)", marginBottom: "10px", fontFamily: "var(--font-sans)" }}>After</p>
+            <CodeBlock code="KEYDROP_KEY=proj_xxxxxxxxx" language="env" />
           </div>
         </div>
+        <p style={{ fontSize: "15px", lineHeight: "1.7", color: "var(--text-secondary)", marginTop: "16px", fontFamily: "var(--font-sans)" }}>
+          Your secrets are securely stored and replaced with a single project key.
+        </p>
       </section>
 
-      <section id="security-model" style={{ marginBottom: "48px", scrollMarginTop: "100px" }}>
-        <h2 style={{ fontSize: "20px", fontWeight: "600", color: "var(--text)", marginBottom: "16px", fontFamily: "var(--font-sans)" }}>
-          Security Model
+      <section id="run" style={{ marginBottom: "56px", scrollMarginTop: "100px" }}>
+        <h2 style={{ fontSize: "20px", fontWeight: "600", color: "var(--text)", marginBottom: "8px", fontFamily: "var(--font-sans)" }}>
+          03. Run
         </h2>
         <p style={{ fontSize: "15px", lineHeight: "1.7", color: "var(--text-secondary)", marginBottom: "20px", fontFamily: "var(--font-sans)" }}>
-          KeyDrop is designed with a zero-knowledge architecture. Here is what that means:
+          Use KeyDrop to inject secrets during development and builds.
         </p>
-        <ul style={{ display: "flex", flexDirection: "column", gap: "12px", listStyle: "none", padding: 0, margin: 0 }}>
-          {[
-            "Your secrets are encrypted before they leave your machine",
-            "We store only encrypted data - never plaintext",
-            "Your project key is used only for decryption on your infrastructure",
-            "We cannot access your secrets even if we wanted to",
-          ].map((item, i) => (
-            <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" style={{ flexShrink: 0, marginTop: "2px" }}>
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              <span style={{ fontSize: "15px", lineHeight: "1.5", color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>
-                {item}
-              </span>
+
+        <p style={{ fontSize: "13px", fontWeight: "600", color: "var(--text-muted)", marginBottom: "10px", fontFamily: "var(--font-sans)" }}>Development</p>
+        <div style={{ marginBottom: "20px" }}>
+          <CodeBlock code="keydrop run -- npm run dev" language="bash" />
+        </div>
+
+        <p style={{ fontSize: "13px", fontWeight: "600", color: "var(--text-muted)", marginBottom: "10px", fontFamily: "var(--font-sans)" }}>Build</p>
+        <div style={{ marginBottom: "20px" }}>
+          <CodeBlock code="keydrop run -- next build" language="bash" />
+        </div>
+
+        <p style={{ fontSize: "13px", fontWeight: "600", color: "var(--text-muted)", marginBottom: "10px", fontFamily: "var(--font-sans)" }}>Runtime</p>
+        <div style={{ marginBottom: "16px" }}>
+          <CodeBlock code={`import { init } from "keydrop";\n\nawait init();`} language="typescript" filename="app startup" />
+        </div>
+        <p style={{ fontSize: "15px", lineHeight: "1.7", color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>
+          Secrets are automatically loaded into <code style={{ fontFamily: "var(--font-mono)", background: "var(--bg-secondary)", padding: "2px 6px", borderRadius: "4px", fontSize: "13px" }}>process.env</code>.
+        </p>
+      </section>
+
+      <section id="behind-the-scenes" style={{ marginBottom: "56px", scrollMarginTop: "100px" }}>
+        <h2 style={{ fontSize: "20px", fontWeight: "600", color: "var(--text)", marginBottom: "16px", fontFamily: "var(--font-sans)" }}>
+          What Happens Behind The Scenes
+        </h2>
+        <CodeBlock
+          code={`Your .env
+↓
+keydrop push
+↓
+Secrets stored securely
+↓
+KEYDROP_KEY generated
+↓
+Deployment receives KEYDROP_KEY
+↓
+keydrop run injects build-time secrets
+↓
+init() loads runtime secrets
+↓
+Application runs normally`}
+          language="text"
+        />
+      </section>
+
+      <section id="verified" style={{ marginBottom: "48px", scrollMarginTop: "100px" }}>
+        <h2 style={{ fontSize: "20px", fontWeight: "600", color: "var(--text)", marginBottom: "16px", fontFamily: "var(--font-sans)" }}>
+          What Has Been Verified
+        </h2>
+        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "10px" }}>
+          {verified.map((item) => (
+            <li
+              key={item}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "12px 14px",
+                borderRadius: "10px",
+                background: "var(--bg-card)",
+                border: "1px solid var(--border)",
+                fontSize: "14px",
+                color: "var(--text-secondary)",
+                fontFamily: "var(--font-sans)",
+              }}
+            >
+              <span style={{ color: "var(--accent)" }}>✓</span>
+              {item}
             </li>
           ))}
         </ul>
       </section>
+
+      <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid var(--border)", paddingTop: "24px" }}>
+        <Link href="/docs" style={{ color: "var(--text-secondary)", fontSize: "14px", textDecoration: "none", fontFamily: "var(--font-sans)" }}>
+          ← Introduction
+        </Link>
+        <Link href="/docs/getting-started" style={{ color: "var(--accent)", fontSize: "14px", fontWeight: "500", textDecoration: "none", fontFamily: "var(--font-sans)" }}>
+          Quick Start →
+        </Link>
+      </div>
     </>
   );
 }
