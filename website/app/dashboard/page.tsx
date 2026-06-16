@@ -147,6 +147,7 @@ export default function Dashboard() {
             </Link>
             <UserButton />
           </div>
+         
         </div>
       </header>
 
@@ -453,17 +454,18 @@ export default function Dashboard() {
                       background: "var(--bg)",
                       border: "1px solid var(--border)",
                       marginBottom: "20px",
+                      overflowX: "auto",
                     }}
                   >
                     <p style={{ fontSize: "11px", fontWeight: "600", color: "var(--text-muted)", marginBottom: "8px", fontFamily: "var(--font-sans)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                       Project Key
                     </p>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2">
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", maxWidth: "100%" }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" style={{ flexShrink: 0 }}>
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                         <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                       </svg>
-                      <code style={{ fontFamily: "var(--font-mono)", fontSize: "14px", color: "var(--accent)" }}>
+                      <code style={{ fontFamily: "var(--font-mono)", fontSize: "14px", color: "var(--accent)", whiteSpace: "nowrap" }}>
                         {project.projectKey}
                       </code>
                     </div>

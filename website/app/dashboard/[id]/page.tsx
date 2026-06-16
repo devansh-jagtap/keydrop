@@ -157,13 +157,21 @@ export default function ProjectPage() {
               borderRadius: "10px",
               background: "var(--bg-card)",
               border: "1px solid var(--border)",
+              maxWidth: "100%",
             }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" style={{ flexShrink: 0 }}>
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
-            <code style={{ fontFamily: "var(--font-mono)", fontSize: "14px", color: "var(--accent)" }}>
+            <code style={{ 
+              fontFamily: "var(--font-mono)", 
+              fontSize: "14px", 
+              color: "var(--accent)", 
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis"
+            }}>
               {projectKey}
             </code>
           </div>
@@ -250,9 +258,10 @@ export default function ProjectPage() {
                       borderRadius: "8px",
                       background: "var(--bg)",
                       border: "1px solid var(--border)",
+                      overflowX: "auto",
                     }}
                   >
-                    <p style={{ fontSize: "14px", color: "var(--text-secondary)", fontFamily: "var(--font-mono)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: revealed[key] ? "pre-wrap" : "nowrap", margin: 0 }}>
+                    <p style={{ fontSize: "14px", color: "var(--text-secondary)", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", margin: 0 }}>
                       {revealed[key] ? value : "••••••••••••••••••••••••••••••••••••••••••••••••••••"}
                     </p>
                   </div>
