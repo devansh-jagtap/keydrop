@@ -89,7 +89,6 @@ body {
 }
 
 @keyframes blink {
-
   0%,
   100% {
     opacity: 1;
@@ -133,4 +132,247 @@ body {
   content: "▌";
   animation: blink 1s step-end infinite;
   color: var(--accent);
+}
+
+/* =============================================================
+   RESPONSIVE NAVBAR
+   =============================================================
+
+   Key principle: display / gap / align-items are controlled
+   only by CSS classes (NOT inline styles on those elements),
+   so media queries can override them without !important.
+   All dynamic visual properties (bg, shadow, border) stay as
+   inline styles driven by React state.
+   ============================================================= */
+
+/* Pill container */
+.nav-pill {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+/* Desktop nav links row */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+/* Desktop auth-actions row */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Hamburger button – hidden on desktop */
+.nav-hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 6px;
+  border-radius: 8px;
+  transition:
+    color 0.2s,
+    background 0.2s;
+}
+
+.nav-hamburger:hover {
+  color: var(--text);
+  background: var(--border);
+}
+
+/* ── Mobile break-point (< 768 px) ── */
+@media (max-width: 767px) {
+  /* Pill stretches full width, logo ↔ hamburger on opposite ends */
+  .nav-pill {
+    width: 100%;
+    gap: 0;
+    justify-content: space-between;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .nav-actions {
+    display: none;
+  }
+
+  .nav-hamburger {
+    display: flex;
+  }
+}
+
+/* =============================================================
+   MOBILE MENU
+   ============================================================= */
+
+/* Full-screen backdrop – closes the menu on outside tap */
+.nav-mobile-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* Dropdown panel */
+.nav-mobile-menu {
+  position: fixed;
+  /* sits just below the navbar pill (20 px top padding + ~56 px pill height) */
+  top: 84px;
+  left: 16px;
+  right: 16px;
+  z-index: 42;
+  background: var(--nav-bg-scrolled);
+  border: 1px solid var(--border-strong);
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+  animation: navMobileIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes navMobileIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Individual link rows */
+.nav-mobile-link {
+  display: block;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.nav-mobile-link:hover {
+  background: var(--accent-dim);
+  color: var(--text);
+}
+
+/* Thin separator line */
+.nav-mobile-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 8px;
+}
+
+/* Row that holds theme-toggle + auth buttons */
+.nav-mobile-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px 8px;
+  flex-wrap: wrap;
+}
+
+/* Outline "Sign in" button */
+.nav-mobile-btn-outline {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 16px;
+  border-radius: 9999px;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.nav-mobile-btn-outline:hover {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* Filled accent "Sign up / Dashboard" button */
+.nav-mobile-btn-accent {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 18px;
+  border-radius: 9999px;
+  border: none;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-family: var(--font-sans);
+  transition: opacity 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-mobile-btn-accent:hover {
+  opacity: 0.8;
+}
+
+/* =============================================================
+   RESPONSIVE SECTIONS
+   ============================================================= */
+
+/*
+  Install section inner card
+  border-radius and padding are moved OUT of inline styles into
+  this class so media queries can override them freely.
+*/
+.install-inner-card {
+  border-radius: 34px;
+  padding: 52px 32px 44px;
+}
+
+@media (max-width: 767px) {
+  .install-inner-card {
+    border-radius: 20px;
+    padding: 28px 16px 28px;
+  }
+
+  /* Hero section – slightly less top padding on small phones */
+  .hero-section {
+    padding-top: 84px;
+  }
+
+  /* How-it-works cards – tighten horizontal padding */
+  .how-it-works-section {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  /* Install outer section – reduce horizontal margin */
+  .install-section {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* Footer – stack items and center on very small screens */
+  .footer-inner {
+    justify-content: center;
+    text-align: center;
+  }
 }

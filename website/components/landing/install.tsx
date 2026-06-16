@@ -9,7 +9,10 @@ const installOptions = [
     subtitle: "Get started in minutes",
     icon: null,
     commands: [
-      { label: "Install SDK + CLI", code: "npm install keydrop\nnpm install -g keydrop-cli" },
+      {
+        label: "Install SDK + CLI",
+        code: "npm install keydrop\nnpm install -g keydrop-cli",
+      },
       { label: "Login", code: "keydrop login" },
       { label: "Upload secrets", code: "keydrop push" },
       { label: "Run your application", code: "keydrop run -- npm run dev" },
@@ -22,10 +25,16 @@ const installOptions = [
     subtitle: "Express, Fastify, Hono, NestJS",
     icon: "/icons/nodedotjs.svg",
     commands: [
-      { label: "Install SDK + CLI", code: "npm install keydrop\nnpm install -g keydrop-cli" },
+      {
+        label: "Install SDK + CLI",
+        code: "npm install keydrop\nnpm install -g keydrop-cli",
+      },
       { label: "Login and push secrets", code: "keydrop login\nkeydrop push" },
       { label: "Development", code: "keydrop run -- npm start" },
-      { label: "Runtime secret loading", code: 'import { init } from "keydrop";\n\nawait init();' },
+      {
+        label: "Runtime secret loading",
+        code: 'import { init } from "keydrop";\n\nawait init();',
+      },
       { label: "Deploy anywhere", code: "KEYDROP_KEY=proj_xxxxxxxxx" },
     ],
   },
@@ -35,10 +44,19 @@ const installOptions = [
     subtitle: "App Router, Vercel, NEXT_PUBLIC variables",
     icon: "/icons/nextdotjs.svg",
     commands: [
-      { label: "Install SDK + CLI", code: "npm install keydrop\nnpm install -g keydrop-cli" },
+      {
+        label: "Install SDK + CLI",
+        code: "npm install keydrop\nnpm install -g keydrop-cli",
+      },
       { label: "Login and push secrets", code: "keydrop login\nkeydrop push" },
-      { label: "Build-time secret injection", code: "keydrop run -- next build" },
-      { label: "Runtime secret loading", code: 'import { init } from "keydrop";\n\nawait init();' },
+      {
+        label: "Build-time secret injection",
+        code: "keydrop run -- next build",
+      },
+      {
+        label: "Runtime secret loading",
+        code: 'import { init } from "keydrop";\n\nawait init();',
+      },
       { label: "Deploy anywhere", code: "KEYDROP_KEY=proj_xxxxxxxxx" },
     ],
   },
@@ -58,13 +76,19 @@ export default function Install() {
     <>
       <section
         id="install"
+        className="install-section"
         style={{ padding: "0 24px 96px", maxWidth: "1260px", margin: "0 auto" }}
       >
+        {/*
+          .install-inner-card owns border-radius + padding so the
+          globals.css media query can override them on mobile without
+          needing !important on the inline style.
+        */}
         <div
+          className="install-inner-card"
           style={{
-            borderRadius: "34px",
-            padding: "52px 32px 44px",
-            background: "linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.015))",
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.015))",
             border: "1px solid rgba(255,255,255,0.08)",
             boxShadow: "0 18px 80px rgba(0,0,0,0.35)",
           }}
@@ -127,7 +151,8 @@ export default function Install() {
                   padding: "28px 24px",
                   cursor: item.id === "coming-soon" ? "default" : "pointer",
                   textAlign: "center",
-                  transition: "transform 0.25s ease, border 0.25s ease, background 0.25s ease",
+                  transition:
+                    "transform 0.25s ease, border 0.25s ease, background 0.25s ease",
                   minHeight: "224px",
                   opacity: item.id === "coming-soon" ? 0.82 : 1,
                   boxShadow: "inset 0 1px 0 rgba(255,255,255,0.03)",
@@ -138,13 +163,16 @@ export default function Install() {
                 }}
                 onMouseEnter={(e) => {
                   if (item.id === "coming-soon") return;
-                  e.currentTarget.style.border = "1px solid rgba(255,255,255,0.14)";
+                  e.currentTarget.style.border =
+                    "1px solid rgba(255,255,255,0.14)";
                   e.currentTarget.style.transform = "translateY(-4px)";
-                  e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.028))";
+                  e.currentTarget.style.background =
+                    "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.028))";
                 }}
                 onMouseLeave={(e) => {
                   if (item.id === "coming-soon") return;
-                  e.currentTarget.style.border = "1px solid rgba(255,255,255,0.06)";
+                  e.currentTarget.style.border =
+                    "1px solid rgba(255,255,255,0.06)";
                   e.currentTarget.style.transform = "translateY(0px)";
                   e.currentTarget.style.background =
                     item.id === "coming-soon"
@@ -170,7 +198,11 @@ export default function Install() {
                     <img
                       src={item.icon}
                       alt={item.title}
-                      style={{ width: "44px", height: "44px", objectFit: "contain" }}
+                      style={{
+                        width: "44px",
+                        height: "44px",
+                        objectFit: "contain",
+                      }}
                     />
                   </div>
                 ) : item.id === "quick-run" ? (
@@ -288,8 +320,12 @@ export default function Install() {
                 fontFamily: "var(--font-sans)",
                 transition: "0.2s ease",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text)")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "var(--text)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "var(--text-secondary)")
+              }
             >
               GitHub ↗
             </a>
@@ -329,7 +365,10 @@ export default function Install() {
           {installOptions
             .filter((item) => item.id === activeInstall)
             .map((item) => (
-              <div key={item.id} style={{ maxWidth: "920px", margin: "0 auto" }}>
+              <div
+                key={item.id}
+                style={{ maxWidth: "920px", margin: "0 auto" }}
+              >
                 <div
                   style={{
                     width: "70px",
@@ -360,7 +399,13 @@ export default function Install() {
                 >
                   {item.subtitle}
                 </p>
-                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "20px",
+                  }}
+                >
                   {item.commands.map((cmd, i) => (
                     <div key={i}>
                       <p
@@ -391,9 +436,29 @@ export default function Install() {
                           lineHeight: "1.7",
                         }}
                       >
-                        <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", overflowX: "auto" }}>
-                          <span style={{ color: "var(--text-muted)", marginTop: "1px" }}>$</span>
-                          <span style={{ color: "var(--text)", wordBreak: "break-word", whiteSpace: "pre-wrap" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: "12px",
+                            overflowX: "auto",
+                          }}
+                        >
+                          <span
+                            style={{
+                              color: "var(--text-muted)",
+                              marginTop: "1px",
+                            }}
+                          >
+                            $
+                          </span>
+                          <span
+                            style={{
+                              color: "var(--text)",
+                              wordBreak: "break-word",
+                              whiteSpace: "pre-wrap",
+                            }}
+                          >
                             {cmd.code}
                           </span>
                         </div>
@@ -407,7 +472,10 @@ export default function Install() {
                             background: "transparent",
                             border: "none",
                             cursor: "pointer",
-                            color: copiedIndex === i ? "var(--accent)" : "var(--text-muted)",
+                            color:
+                              copiedIndex === i
+                                ? "var(--accent)"
+                                : "var(--text-muted)",
                             padding: "4px",
                             display: "flex",
                             alignItems: "center",
@@ -417,19 +485,46 @@ export default function Install() {
                           }}
                           title="Copy command"
                           onMouseEnter={(e) => {
-                            if (copiedIndex !== i) e.currentTarget.style.color = "var(--text)";
+                            if (copiedIndex !== i)
+                              e.currentTarget.style.color = "var(--text)";
                           }}
                           onMouseLeave={(e) => {
-                            if (copiedIndex !== i) e.currentTarget.style.color = "var(--text-muted)";
+                            if (copiedIndex !== i)
+                              e.currentTarget.style.color = "var(--text-muted)";
                           }}
                         >
                           {copiedIndex === i ? (
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
                               <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
                           ) : (
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <rect
+                                x="9"
+                                y="9"
+                                width="13"
+                                height="13"
+                                rx="2"
+                                ry="2"
+                              ></rect>
                               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                             </svg>
                           )}

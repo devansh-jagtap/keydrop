@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { UserButton, useAuth, useUser } from "@clerk/nextjs";
-import { createKeydropTokenFromClerk, deleteProject, getProjects } from "@/lib/api";
+import { deleteProject, getProjects } from "@/lib/api";
 
 interface Project {
   id: string;
@@ -14,6 +15,7 @@ interface Project {
 }
 
 export default function Dashboard() {
+  const router = useRouter();
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const { user, isLoaded: isUserLoaded } = useUser();
   const [projects, setProjects] = useState<Project[]>([]);
@@ -23,7 +25,12 @@ export default function Dashboard() {
   const [copied, setCopied] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isLoaded || !isUserLoaded || !isSignedIn) return;
+    if (!isLoaded || !isUserLoaded) return;
+
+    if (!isSignedIn) {
+      router.replace("/");
+      return;
+    }
 
     let active = true;
 
@@ -31,15 +38,12 @@ export default function Dashboard() {
       try {
         setError("");
         const clerkToken = await getToken();
-        const session = await createKeydropTokenFromClerk(clerkToken, {
-          email: user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || null,
-          name: user?.fullName || user?.username || null,
-          avatarUrl: user?.imageUrl || null,
-        });
-        const data = await getProjects(session.token);
+        if (!clerkToken) throw new Error("No Clerk token");
+        
+        const data = await getProjects(clerkToken);
 
         if (active) {
-          setApiToken(session.token);
+          setApiToken(clerkToken);
           setProjects(data.projects || []);
         }
       } catch (err: unknown) {
@@ -58,20 +62,15 @@ export default function Dashboard() {
     return () => {
       active = false;
     };
-  }, [getToken, isLoaded, isSignedIn, isUserLoaded, user]);
+  }, [getToken, isLoaded, isSignedIn, isUserLoaded, router, user]);
 
   async function handleDelete(projectKey: string) {
     if (!confirm("Delete this project? This cannot be undone.")) return;
     try {
       let token = apiToken;
       if (!token) {
-        const clerkToken = await getToken();
-        const session = await createKeydropTokenFromClerk(clerkToken, {
-          email: user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || null,
-          name: user?.fullName || user?.username || null,
-          avatarUrl: user?.imageUrl || null,
-        });
-        token = session.token;
+        token = await getToken();
+        if (!token) throw new Error("No Clerk token");
         setApiToken(token);
       }
 

@@ -75,7 +75,7 @@ export default function ProjectPage() {
             </svg>
           </div>
           <p style={{ color: "#ef4444", fontFamily: "var(--font-sans)", marginBottom: "16px", fontWeight: "500" }}>{error}</p>
-          <Link href="/dashboard" style={{ color: "var(--accent)", textDecoration: "none", fontFamily: "var(--font-sans)", fontWeight: "500" }}>Back to dashboard</Link>
+          <Link href="/dashboard" prefetch={false} style={{ color: "var(--accent)", textDecoration: "none", fontFamily: "var(--font-sans)", fontWeight: "500" }}>Back to dashboard</Link>
         </div>
       </main>
     );
@@ -110,6 +110,7 @@ export default function ProjectPage() {
           </Link>
           <Link
             href="/dashboard"
+            prefetch={false}
             style={{
               display: "inline-flex",
               alignItems: "center",

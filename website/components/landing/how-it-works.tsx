@@ -22,11 +22,7 @@ const steps = [
     title: "Run",
     description:
       "Use keydrop run for development and builds. Call init() at runtime to load secrets into process.env.",
-    commands: [
-      "keydrop run -- npm run dev",
-      "keydrop run -- next build",
-      'import { init } from "keydrop"; await init();',
-    ],
+    commands: ["keydrop run -- npm run dev", "keydrop run -- next build"],
   },
 ];
 
@@ -43,7 +39,7 @@ export default function HowItWorks() {
           observer.disconnect();
         }
       },
-      { threshold: 0.2 }
+      { threshold: 0.2 },
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
@@ -53,7 +49,12 @@ export default function HowItWorks() {
     <section
       id="how-it-works"
       ref={sectionRef}
-      style={{ padding: "60px 24px 120px", maxWidth: "1100px", margin: "0 auto" }}
+      className="how-it-works-section"
+      style={{
+        padding: "60px 24px 120px",
+        maxWidth: "1100px",
+        margin: "0 auto",
+      }}
     >
       <div
         style={{ marginBottom: "64px" }}
@@ -98,7 +99,9 @@ export default function HowItWorks() {
         {steps.map((step, i) => (
           <div
             key={step.number}
-            className={isVisible ? `animate-fade-up delay-${i + 2}` : "opacity-0"}
+            className={
+              isVisible ? `animate-fade-up delay-${i + 2}` : "opacity-0"
+            }
             style={{
               display: "flex",
               flexDirection: "column",
@@ -111,11 +114,14 @@ export default function HowItWorks() {
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLDivElement).style.borderColor = "#22d3a5";
-              (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)";
+              (e.currentTarget as HTMLDivElement).style.transform =
+                "translateY(-4px)";
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLDivElement).style.borderColor = "var(--border)";
-              (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
+              (e.currentTarget as HTMLDivElement).style.borderColor =
+                "var(--border)";
+              (e.currentTarget as HTMLDivElement).style.transform =
+                "translateY(0)";
             }}
           >
             <span
@@ -129,7 +135,9 @@ export default function HowItWorks() {
             >
               {step.number}
             </span>
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+            >
               {step.commands.map((command, commandIndex) => {
                 const key = `${i}-${commandIndex}`;
                 const isCode = command.includes("import");
@@ -163,7 +171,10 @@ export default function HowItWorks() {
                         background: "transparent",
                         border: "none",
                         cursor: "pointer",
-                        color: copiedKey === key ? "var(--accent)" : "var(--text-muted)",
+                        color:
+                          copiedKey === key
+                            ? "var(--accent)"
+                            : "var(--text-muted)",
                         padding: "4px",
                         display: "flex",
                         alignItems: "center",
@@ -174,12 +185,37 @@ export default function HowItWorks() {
                       title="Copy command"
                     >
                       {copiedKey === key ? (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                       ) : (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <rect
+                            x="9"
+                            y="9"
+                            width="13"
+                            height="13"
+                            rx="2"
+                            ry="2"
+                          ></rect>
                           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                         </svg>
                       )}
