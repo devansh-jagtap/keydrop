@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 const commands = [
   {
     name: "login",
@@ -66,11 +68,11 @@ export default function CLIPage() {
             textTransform: "uppercase",
             color: "var(--text-muted)",
             marginBottom: "12px",
-            fontFamily: "var(--font-sans)",
           }}
         >
           CLI Reference
         </p>
+
         <h1
           style={{
             fontSize: "clamp(2rem, 4vw, 2.75rem)",
@@ -79,35 +81,40 @@ export default function CLIPage() {
             lineHeight: "1.15",
             color: "var(--text)",
             marginBottom: "16px",
-            fontFamily: "var(--font-sans)",
           }}
         >
           CLI Commands
         </h1>
+
         <p
           style={{
             fontSize: "17px",
             lineHeight: "1.7",
             color: "var(--text-secondary)",
-            fontFamily: "var(--font-sans)",
           }}
         >
           Install the CLI for secret management and build-time injection. Use the SDK for runtime loading with init().
         </p>
       </div>
 
-      <section id="installation" style={{ marginBottom: "48px", scrollMarginTop: "100px" }}>
+      <section
+        id="installation"
+        style={{
+          marginBottom: "48px",
+          scrollMarginTop: "100px",
+        }}
+      >
         <h2
           style={{
             fontSize: "20px",
             fontWeight: "600",
             color: "var(--text)",
             marginBottom: "16px",
-            fontFamily: "var(--font-sans)",
           }}
         >
           Installation
         </h2>
+
         <div
           style={{
             padding: "14px 18px",
@@ -117,10 +124,17 @@ export default function CLIPage() {
             marginBottom: "12px",
           }}
         >
-          <code style={{ fontFamily: "var(--font-mono)", fontSize: "14px", color: "var(--accent)" }}>
+          <code
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "14px",
+              color: "var(--accent)",
+            }}
+          >
             npm install keydrop
           </code>
         </div>
+
         <div
           style={{
             padding: "14px 18px",
@@ -129,11 +143,24 @@ export default function CLIPage() {
             border: "1px solid var(--border)",
           }}
         >
-          <code style={{ fontFamily: "var(--font-mono)", fontSize: "14px", color: "var(--accent)" }}>
+          <code
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "14px",
+              color: "var(--accent)",
+            }}
+          >
             npm install -g keydrop-cli
           </code>
         </div>
-        <p style={{ fontSize: "13px", color: "var(--text-muted)", marginTop: "12px", fontFamily: "var(--font-sans)" }}>
+
+        <p
+          style={{
+            fontSize: "13px",
+            color: "var(--text-muted)",
+            marginTop: "12px",
+          }}
+        >
           Works with npm, yarn, and pnpm.
         </p>
       </section>
@@ -142,7 +169,10 @@ export default function CLIPage() {
         <section
           key={cmd.name}
           id={cmd.id}
-          style={{ marginBottom: "48px", scrollMarginTop: "100px" }}
+          style={{
+            marginBottom: "48px",
+            scrollMarginTop: "100px",
+          }}
         >
           <h2
             style={{
@@ -150,7 +180,6 @@ export default function CLIPage() {
               fontWeight: "600",
               color: "var(--text)",
               marginBottom: "8px",
-              fontFamily: "var(--font-sans)",
             }}
           >
             <code
@@ -165,43 +194,46 @@ export default function CLIPage() {
               {cmd.name}
             </code>
           </h2>
+
           <p
             style={{
               fontSize: "15px",
               lineHeight: "1.6",
               color: "var(--text-secondary)",
               marginBottom: "20px",
-              fontFamily: "var(--font-sans)",
             }}
           >
             {cmd.description}
           </p>
 
-          <div
-            style={{
-              marginBottom: "20px",
-            }}
-          >
+          <div style={{ marginBottom: "20px" }}>
             <p
               style={{
                 fontSize: "12px",
                 fontWeight: "600",
                 color: "var(--text-muted)",
                 marginBottom: "8px",
-                fontFamily: "var(--font-sans)",
               }}
             >
               Usage
             </p>
+
             <div
               style={{
                 padding: "14px 18px",
                 borderRadius: "10px",
                 background: "var(--bg-card)",
                 border: "1px solid var(--border)",
+                overflowX: "auto",
               }}
             >
-              <code style={{ fontFamily: "var(--font-mono)", fontSize: "14px", color: "var(--text)" }}>
+              <code
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "14px",
+                  color: "var(--text)",
+                }}
+              >
                 {cmd.usage}
               </code>
             </div>
@@ -215,12 +247,18 @@ export default function CLIPage() {
                   fontWeight: "600",
                   color: "var(--text-muted)",
                   marginBottom: "8px",
-                  fontFamily: "var(--font-sans)",
                 }}
               >
                 Examples
               </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                }}
+              >
                 {cmd.examples.map((ex, i) => (
                   <div
                     key={i}
@@ -229,11 +267,19 @@ export default function CLIPage() {
                       borderRadius: "8px",
                       background: "var(--bg-card)",
                       border: "1px solid var(--border)",
+                      overflowX: "auto",
                     }}
                   >
-                    <span style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)", fontSize: "13px" }}>
+                    <span
+                      style={{
+                        color: "var(--text-muted)",
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "13px",
+                      }}
+                    >
                       $
                     </span>
+
                     <code
                       style={{
                         marginLeft: "8px",
@@ -258,11 +304,11 @@ export default function CLIPage() {
                   fontWeight: "600",
                   color: "var(--text-muted)",
                   marginBottom: "8px",
-                  fontFamily: "var(--font-sans)",
                 }}
               >
                 Options
               </p>
+
               <div
                 style={{
                   borderRadius: "10px",
@@ -275,11 +321,18 @@ export default function CLIPage() {
                     key={opt.flag}
                     style={{
                       display: "flex",
+                      flexWrap: "wrap",
                       alignItems: "baseline",
-                      gap: "16px",
+                      gap: "12px",
                       padding: "12px 16px",
-                      background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg)",
-                      borderBottom: i < cmd.options.length - 1 ? "1px solid var(--border)" : "none",
+                      background:
+                        i % 2 === 0
+                          ? "var(--bg-card)"
+                          : "var(--bg)",
+                      borderBottom:
+                        i < cmd.options.length - 1
+                          ? "1px solid var(--border)"
+                          : "none",
                     }}
                   >
                     <code
@@ -287,16 +340,19 @@ export default function CLIPage() {
                         fontFamily: "var(--font-mono)",
                         fontSize: "13px",
                         color: "var(--accent)",
-                        minWidth: "140px",
+                        minWidth: "120px",
+                        wordBreak: "break-word",
                       }}
                     >
                       {opt.flag}
                     </code>
+
                     <span
                       style={{
                         fontSize: "14px",
                         color: "var(--text-secondary)",
-                        fontFamily: "var(--font-sans)",
+                        flex: 1,
+                        minWidth: "200px",
                       }}
                     >
                       {opt.description}
@@ -308,6 +364,40 @@ export default function CLIPage() {
           )}
         </section>
       ))}
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "12px",
+          borderTop: "1px solid var(--border)",
+          paddingTop: "24px",
+        }}
+      >
+        <Link
+          href="/docs/deployment"
+          style={{
+            color: "var(--text-secondary)",
+            fontSize: "14px",
+            textDecoration: "none",
+          }}
+        >
+          ← Deploy Anywhere
+        </Link>
+
+        <Link
+          href="/docs/sdk"
+          style={{
+            color: "var(--accent)",
+            fontSize: "14px",
+            fontWeight: "500",
+            textDecoration: "none",
+          }}
+        >
+          SDK Reference →
+        </Link>
+      </div>
     </>
   );
 }

@@ -64,7 +64,16 @@ export default function DocsPage() {
         </div>
       </section>
 
-      <div style={{ display: "flex", justifyContent: "flex-end", borderTop: "1px solid var(--border)", paddingTop: "24px" }}>
+    <div
+  style={{
+    display: "flex",
+    justifyContent: "flex-end",
+    flexWrap: "wrap",
+    gap: "12px",
+    borderTop: "1px solid var(--border)",
+    paddingTop: "24px",
+  }}
+>
         <Link href="/docs/how-it-works" style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--accent)", fontSize: "14px", fontWeight: "500", textDecoration: "none", fontFamily: "var(--font-sans)" }}>
           How It Works
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

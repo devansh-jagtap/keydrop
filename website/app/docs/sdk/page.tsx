@@ -237,15 +237,50 @@ export default function SDKPage() {
             Options
           </p>
           <div style={{ borderRadius: "10px", border: "1px solid var(--border)", overflow: "hidden" }}>
-            <div style={{ display: "flex", gap: "16px", padding: "14px 16px", background: "var(--bg-card)", borderBottom: "1px solid var(--border)" }}>
-              <code style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--accent)", minWidth: "120px" }}>key</code>
-              <span style={{ fontSize: "14px", color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>
+           <div
+  style={{
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "12px",
+    padding: "14px 16px",
+    background: "var(--bg-card)",
+    borderBottom: "1px solid var(--border)",
+  }}
+>
+              <code style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--accent)", minWidth: "120px",
+wordBreak: "break-word"}}>key</code>
+             <span
+  style={{
+    fontSize: "14px",
+    color: "var(--text-secondary)",
+    fontFamily: "var(--font-sans)",
+    flex: 1,
+    minWidth: "200px",
+  }}
+>
                 Project key (default: KEYDROP_KEY env var)
               </span>
             </div>
-            <div style={{ display: "flex", gap: "16px", padding: "14px 16px", background: "var(--bg)" }}>
-              <code style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--accent)", minWidth: "120px" }}>override</code>
-              <span style={{ fontSize: "14px", color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>
+            <div
+  style={{
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "12px",
+    padding: "14px 16px",
+    background: "var(--bg)",
+  }}
+>
+              <code style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--accent)", minWidth: "120px",
+wordBreak: "break-word"}}>override</code>
+              <span
+  style={{
+    fontSize: "14px",
+    color: "var(--text-secondary)",
+    fontFamily: "var(--font-sans)",
+    flex: 1,
+    minWidth: "200px",
+  }}
+>
                 Override existing env vars (default: false)
               </span>
             </div>

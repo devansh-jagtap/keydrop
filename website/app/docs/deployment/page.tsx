@@ -83,7 +83,16 @@ export default function DeploymentPage() {
         <CodeBlock code={`import { init } from "keydrop";\n\nawait init();`} language="typescript" />
       </section>
 
-      <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid var(--border)", paddingTop: "24px" }}>
+     <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: "12px",
+    borderTop: "1px solid var(--border)",
+    paddingTop: "24px",
+  }}
+>
         <Link href="/docs/frameworks" style={{ color: "var(--text-secondary)", fontSize: "14px", textDecoration: "none", fontFamily: "var(--font-sans)" }}>
           ← Framework Support
         </Link>

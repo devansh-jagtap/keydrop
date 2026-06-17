@@ -157,14 +157,41 @@ Application runs normally`}
         </ul>
       </section>
 
-      <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid var(--border)", paddingTop: "24px" }}>
-        <Link href="/docs" style={{ color: "var(--text-secondary)", fontSize: "14px", textDecoration: "none", fontFamily: "var(--font-sans)" }}>
-          ← Introduction
-        </Link>
-        <Link href="/docs/getting-started" style={{ color: "var(--accent)", fontSize: "14px", fontWeight: "500", textDecoration: "none", fontFamily: "var(--font-sans)" }}>
-          Quick Start →
-        </Link>
-      </div>
+      <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: "12px",
+    borderTop: "1px solid var(--border)",
+    paddingTop: "24px",
+  }}
+>
+  <Link
+    href="/docs"
+    style={{
+      color: "var(--text-secondary)",
+      fontSize: "14px",
+      textDecoration: "none",
+      fontFamily: "var(--font-sans)",
+    }}
+  >
+    ← Introduction
+  </Link>
+
+  <Link
+    href="/docs/getting-started"
+    style={{
+      color: "var(--accent)",
+      fontSize: "14px",
+      fontWeight: "500",
+      textDecoration: "none",
+      fontFamily: "var(--font-sans)",
+    }}
+  >
+    Quick Start →
+  </Link>
+</div>
     </>
   );
 }

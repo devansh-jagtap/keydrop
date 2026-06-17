@@ -64,7 +64,16 @@ export default function FrameworksPage() {
         </ul>
       </section>
 
-      <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid var(--border)", paddingTop: "24px" }}>
+      <div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: "12px",
+    borderTop: "1px solid var(--border)",
+    paddingTop: "24px",
+  }}
+>
         <Link href="/docs/getting-started" style={{ color: "var(--text-secondary)", fontSize: "14px", textDecoration: "none", fontFamily: "var(--font-sans)" }}>
           ← Quick Start
         </Link>

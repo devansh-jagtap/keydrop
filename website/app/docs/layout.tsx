@@ -1,5 +1,6 @@
 import DocsSidebar from "@/components/docs/docs-sidebar";
 import Navbar from "@/components/layout/navbar";
+import "./docs.css";
 
 export const metadata = {
   title: "Docs — KeyDrop",
@@ -13,19 +14,20 @@ export default function DocsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "var(--bg)",
+      }}
+    >
       <Navbar />
-      <div
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "100px 24px 80px",
-          display: "flex",
-          gap: "48px",
-        }}
-      >
+
+      <div className="docs-layout">
         <DocsSidebar />
-        <main style={{ flex: 1, minWidth: 0 }}>{children}</main>
+
+        <main className="docs-main">
+          {children}
+        </main>
       </div>
     </div>
   );
