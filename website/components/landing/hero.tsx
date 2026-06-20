@@ -94,7 +94,7 @@ export default function Hero() {
         }}
       >
         Push your .env once, deploy with a single KEYDROP_KEY. Use keydrop run
-        for builds and init() for runtime — one key, deploy anywhere.
+        for builds and init() for runtime one key, deploy anywhere.
       </p>
 
       {/* before/after */}

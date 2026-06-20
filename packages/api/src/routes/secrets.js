@@ -113,5 +113,34 @@ router.delete("/project/:key", requireAuth, async (req, res) => {
 
   return res.json({ success: true });
 });
+// PUT /project/:key/secret
+router.put("/project/:key/secret", requireAuth, async (req, res) => {
+  const { key } = req.params;
+  const { secretKey, value } = req.body;
 
+  const project = await prisma.project.findUnique({
+    where: { projectKey: key },
+  });
+
+  if (!project) {
+    return res.status(404).json({ message: "Project not found" });
+  }
+
+  if (project.userId !== req.user.userId) {
+    return res.status(403).json({ message: "Not your project" });
+  }
+
+  const secrets = JSON.parse(decrypt(project.encryptedData));
+
+  secrets[secretKey] = value;
+
+  const encryptedData = encrypt(JSON.stringify(secrets));
+
+  await prisma.project.update({
+    where: { projectKey: key },
+    data: { encryptedData },
+  });
+
+  return res.json({ success: true });
+});
 export default router;

@@ -161,3 +161,30 @@ export async function confirmCliToken(token: string, jwt: string) {
     body: JSON.stringify({ token, jwt }),
   });
 }
+export async function updateSecret(
+  projectKey: string,
+  secretKey: string,
+  value: string,
+  token: string
+) {
+  const res = await fetch(
+    `${API_URL}/project/${projectKey}/secret`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        secretKey,
+        value,
+      }),
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to update secret");
+  }
+
+  return res.json();
+}
