@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@clerk/nextjs";
@@ -10,7 +10,8 @@ import { getSecrets, updateSecret } from "@/lib/api";
 export default function ProjectPage() {
   const params = useParams();
   const projectKey = params.id as string;
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
+  const router = useRouter();
 
   const [secrets, setSecrets] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -26,6 +27,12 @@ export default function ProjectPage() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (!isLoaded) return;
+    if (!isSignedIn) {
+      router.replace("/");
+      return;
+    }
+
     let active = true;
 
     async function fetchSecrets() {
@@ -52,7 +59,7 @@ export default function ProjectPage() {
     return () => {
       active = false;
     };
-  }, [projectKey]);
+  }, [projectKey, isLoaded, isSignedIn, router]);
 
   // Focus input when edit mode opens
   useEffect(() => {
@@ -89,7 +96,11 @@ export default function ProjectPage() {
     setSaveError("");
     try {
       const token = await getToken();
-      if (!token) throw new Error("Not authenticated");
+      if (!token) {
+        setSaveError("Not signed in — please refresh the page");
+        setSaving(false);
+        return;
+      }
       await updateSecret(projectKey, key, editDraft.trim(), token);
       setSecrets((prev) => ({ ...prev, [key]: editDraft.trim() }));
       setEditingKey(null);

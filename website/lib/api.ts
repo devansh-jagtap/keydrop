@@ -167,23 +167,21 @@ export async function updateSecret(
   value: string,
   token: string
 ) {
-  const res = await fetch(
-    `${API_URL}/project/${projectKey}/secret`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        secretKey,
-        value,
-      }),
-    }
-  );
+  const res = await fetch(`${API_URL}/project/${projectKey}/secret`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ secretKey, value }),
+  });
 
   if (!res.ok) {
-    throw new Error("Failed to update secret");
+    // Surface the real server error message
+    const data = await res.json().catch(() => null);
+    throw new Error(
+      data?.message || `Failed to update secret (${res.status})`
+    );
   }
 
   return res.json();
